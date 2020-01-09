@@ -14,9 +14,9 @@ See below for details of additional versions.
 
 ### Extensions ###
 
-**Filter by first letter of student name**
+#### Directory with Search ####
 
-Adds feature to allow user to filter student list by the first letter of the student's name.
+Includes feature to allow user to filter student list by the first letter of the student's name.
 ```shell
 ruby directory_w_search.rb
 ```
