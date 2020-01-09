@@ -18,11 +18,39 @@ def input_students
   students
 end
 
+#print methods
 def print_header
   puts "The students of Villains Academy"
   puts "---------------"
 end
 
+def print(students)
+  #each method:
+  #students.each_with_index do |student, index|
+  #  puts "#{index + 1}. #{student[:name]} (#{student[:cohort].capitalize} cohort)"
+  #end
+
+  #loop method
+  i = 0
+  while i < students.count
+    puts "#{i + 1}. #{students[i][:name]} (#{students[i][:cohort].capitalize} Cohort)"
+    i += 1
+  end
+
+  #until loop method
+  #until i == (students.count)
+    #puts "#{i + 1}. #{students[i][:name]} (#{students[i][:cohort].capitalize} Cohort)"
+  #  i += 1
+  #end
+
+end
+
+def print_footer(students)
+  puts "---------------"
+  puts "Overall, we have #{students.count} great students"
+end
+
+#filter methods
 def filter_by_length(students)
   rejected = students.select{|student| student[:name].length > 12}
   students.select!{|student| student[:name].length < 12}
@@ -30,12 +58,6 @@ def filter_by_length(students)
     puts "We can only accept names less than 12 characters long"
     puts "The following names have been rejected:"
     print(rejected)
-  end
-end
-
-def print(students)
-  students.each_with_index do |student, index|
-    puts "#{index + 1}. #{student[:name]} (#{student[:cohort].capitalize} cohort)"
   end
 end
 
@@ -50,10 +72,7 @@ def filter(students)
   puts "#{filtered_list.count} out of #{students.count} students"
 end
 
-def print_footer(students)
-  puts "---------------"
-  puts "Overall, we have #{students.count} great students"
-end
+
 
 
 
