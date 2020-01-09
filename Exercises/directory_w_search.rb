@@ -10,6 +10,9 @@ def input_students
   name = gets.chomp
   # while the name is not empty, repeat this code
   while !name.empty? do
+    puts "Cohort (month starting on site):"
+    input = gets.chomp.downcase
+    month = select_cohort(input)
     puts "Gender (M/F/N):"
     gender = gets.chomp
     puts "Country of birth:"
@@ -17,7 +20,7 @@ def input_students
     puts "Hobbies (separate with ,):"
     hobbies = gets.chomp.strip.split(","||", ")
     #add the student hash to the array
-    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: :November}
+    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: month}
     puts "Now we have #{students.count} students"
     # get another name from the user
     puts "Full name:"
@@ -26,6 +29,37 @@ def input_students
   #return the array of students
   students
 end
+
+#validate inputs
+def select_cohort(input)
+  months = [
+    ["january", "jan", 1],
+    ["february", "feb", 2],
+    ["march", "mar", 3],
+    ["april", "apr", 4],
+    ["may", 5],
+    ["june", "jun", 6],
+    ["july", "jul", 7],
+    ["august", "aug", 8],
+    ["september", "sep", 9],
+    ["october", "oct", 10],
+    ["november", "nov", 11],
+    ["december", "dec", 12]
+  ]
+  cohort = nil
+
+  #until cohort != nil do
+    selected_month = months.select {|month| month.include?(input)}.flatten!
+    #if selected_month == nil
+  #    puts "You entered an invalid month. Please try again"
+  #    input = gets.chomp.downcase
+  #  else
+      cohort = selected_month[0].to_sym
+  #  end
+#  end
+
+end
+
 
 #print methods
 def print_header
@@ -39,15 +73,13 @@ def list(students)
   #iterator method:
   students.each_with_index do |student, index|
     print "#{index + 1}."
-    print "#{student[:name]}".center(19)
+    print "#{student[:name]}".center(29)
     print "|"
     print "#{student[:gender]}".center(9)
     print "|"
     print "#{student[:country]}".center(9)
     print "|"
-    print "#{student[:hobbies].join(", ")}".center(19)
-    print "|"
-    print "#{student[:cohort]} Cohort".center(20) + "\n"
+    print "#{student[:cohort].capitalize} Cohort".center(20) + "\n"
   end
 
   #loop method
