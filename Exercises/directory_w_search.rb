@@ -1,15 +1,20 @@
 #let's put all students into an array
 def input_students
-  puts "Please enter the names of the students"
-  puts "To finish just hit return twice"
+  puts "Please enter details of students"
+  puts "To continue/complete hit return (twice to finish)"
   # create an empty array
   students = []
   #get the first name
+  puts "Full name:"
   name = gets.chomp
   # while the name is not empty, repeat this code
   while !name.empty? do
+    puts "Hobbies(separate multiple answers with ,):"
+    hobbies = gets.chomp.strip.split(","||", ")
+    puts "Country of birth:"
+    country = gets.chomp
     #add the student hash to the array
-    students << {name: name, cohort: :november}
+    students << {name: name, cohort: :november, hobbies: hobbies, country: country}
     puts "Now we have #{students.count} students"
     # get another name from the user
     name = gets.chomp
@@ -33,7 +38,7 @@ def print(students)
   #loop method
   i = 0
   while i < students.count
-    puts "#{i + 1}. #{students[i][:name]} (#{students[i][:cohort].capitalize} Cohort)"
+    puts "#{i + 1}. #{students[i][:name]} | (#{students[i][:cohort].capitalize} Cohort) | #{students[i][:hobbies].join(", ")} | #{students[i][:country]}"
     i += 1
   end
 
@@ -71,10 +76,6 @@ def filter(students)
   puts "---------------"
   puts "#{filtered_list.count} out of #{students.count} students"
 end
-
-
-
-
 
 students = input_students
 #calling methods to run program
