@@ -23,6 +23,16 @@ def print_header
   puts "---------------"
 end
 
+def filter_by_length(students)
+  rejected = students.select{|student| student[:name].length > 12}
+  students.select!{|student| student[:name].length < 12}
+  if !rejected.empty?
+    puts "We can only accept names less than 12 characters long"
+    puts "The following names have been rejected:"
+    print(rejected)
+  end
+end
+
 def print(students)
   students.each_with_index do |student, index|
     puts "#{index + 1}. #{student[:name]} (#{student[:cohort].capitalize} cohort)"
@@ -30,14 +40,14 @@ def print(students)
 end
 
 def filter(students)
-  puts "Enter letter you would like to filter students by (first name)"
+  puts "Enter initial you would like to filter students by (first name)"
   letter = gets.chomp.to_s
   filtered_list = students.select {|student| student[:name].start_with?(letter)}
   puts "Search results:"
-  puts "---------------"
+  puts "Showing students starting with '#{letter}'"
   print(filtered_list)
   puts "---------------"
-  puts "Showing #{filtered_list.count} out of #{students.count} students"
+  puts "#{filtered_list.count} out of #{students.count} students"
 end
 
 def print_footer(students)
@@ -46,8 +56,10 @@ def print_footer(students)
 end
 
 
+
 students = input_students
 #calling methods to run program
+filter_by_length(students)
 print_header
 print(students)
 print_footer(students)
