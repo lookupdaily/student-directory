@@ -1,4 +1,5 @@
-#let's put all students into an array
+
+#adding students
 def input_students
   puts "Please enter details of students"
   puts "To continue/complete hit return (twice to finish)"
@@ -9,14 +10,17 @@ def input_students
   name = gets.chomp
   # while the name is not empty, repeat this code
   while !name.empty? do
-    puts "Hobbies(separate multiple answers with ,):"
-    hobbies = gets.chomp.strip.split(","||", ")
+    puts "Gender (M/F/N):"
+    gender = gets.chomp
     puts "Country of birth:"
     country = gets.chomp
+    puts "Hobbies (separate with ,):"
+    hobbies = gets.chomp.strip.split(","||", ")
     #add the student hash to the array
-    students << {name: name, cohort: :november, hobbies: hobbies, country: country}
+    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: :November}
     puts "Now we have #{students.count} students"
     # get another name from the user
+    puts "Full name:"
     name = gets.chomp
   end
   #return the array of students
@@ -25,22 +29,34 @@ end
 
 #print methods
 def print_header
-  puts "The students of Villains Academy"
-  puts "---------------"
+  puts "The students of Villains Academy".center(80)
+  puts ""
+  puts "-" * 80
+  puts ""
 end
 
-def print(students)
-  #each method:
-  #students.each_with_index do |student, index|
-  #  puts "#{index + 1}. #{student[:name]} (#{student[:cohort].capitalize} cohort)"
-  #end
+def list(students)
+  #iterator method:
+  students.each_with_index do |student, index|
+    print "#{index + 1}."
+    print "#{student[:name]}".center(19)
+    print "|"
+    print "#{student[:gender]}".center(9)
+    print "|"
+    print "#{student[:country]}".center(9)
+    print "|"
+    print "#{student[:hobbies].join(", ")}".center(19)
+    print "|"
+    print "#{student[:cohort]} Cohort".center(20) + "\n"
+  end
 
   #loop method
-  i = 0
-  while i < students.count
-    puts "#{i + 1}. #{students[i][:name]} | (#{students[i][:cohort].capitalize} Cohort) | #{students[i][:hobbies].join(", ")} | #{students[i][:country]}"
-    i += 1
-  end
+  #i = 0
+  #while i < students.count
+  #  string = "#{i + 1}. #{students[i][:name]} | (#{students[i][:cohort].capitalize} Cohort) | #{students[i][:hobbies].join(", ")} | #{students[i][:country]}"
+  #  puts string.center(80)
+  #  i += 1
+  #end
 
   #until loop method
   #until i == (students.count)
@@ -51,8 +67,10 @@ def print(students)
 end
 
 def print_footer(students)
-  puts "---------------"
-  puts "Overall, we have #{students.count} great students"
+  puts ""
+  puts "-" * 80
+  puts ""
+  puts "Overall, we have #{students.count} great students".center(80)
 end
 
 #filter methods
@@ -62,25 +80,26 @@ def filter_by_length(students)
   if !rejected.empty?
     puts "We can only accept names less than 12 characters long"
     puts "The following names have been rejected:"
-    print(rejected)
+    list(rejected)
   end
 end
 
 def filter(students)
   puts "Enter initial you would like to filter students by (first name)"
   letter = gets.chomp.to_s
-  filtered_list = students.select {|student| student[:name].start_with?(letter)}
+  filtered = students.select {|student| student[:name].start_with?(letter)}
   puts "Search results:"
   puts "Showing students starting with '#{letter}'"
-  print(filtered_list)
-  puts "---------------"
-  puts "#{filtered_list.count} out of #{students.count} students"
+  puts "-" * 80
+  list(filtered)
+  puts "-" * 80
+  puts "#{filtered.count} out of #{students.count} students".center(80)
 end
 
 students = input_students
 #calling methods to run program
 filter_by_length(students)
 print_header
-print(students)
+list(students)
 print_footer(students)
 filter(students)
