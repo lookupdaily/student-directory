@@ -24,8 +24,20 @@ def print_header
 end
 
 def print(students)
-  students.select {|student| student[:name].start_with?(/P/i)}
-  .map {|student| puts "#{student[:name]} (#{student[:cohort]} cohort)"}
+  students.each_with_index do |student, index|
+    puts "#{index + 1}. #{student[:name]} (#{student[:cohort].capitalize} cohort)"
+  end
+end
+
+def filter(students)
+  puts "Enter letter you would like to filter students by (first name)"
+  letter = gets.chomp.to_s
+  filtered_list = students.select {|student| student[:name].start_with?(letter)}
+  puts "Search results:"
+  puts "---------------"
+  print(filtered_list)
+  puts "---------------"
+  puts "Showing #{filtered_list.count} out of #{students.count} students"
 end
 
 def print_footer(students)
@@ -39,3 +51,4 @@ students = input_students
 print_header
 print(students)
 print_footer(students)
+filter(students)
