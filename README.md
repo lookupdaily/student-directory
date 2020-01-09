@@ -12,10 +12,9 @@ ruby directory.rb
 
 See below for details of additional versions.
 
-### Extensions ###
+## Extensions ##
 
 #### Directory with Search ####
-
 Includes feature to allow user to filter student list by the first letter of the student's name.
 ```shell
 ruby directory_w_search.rb
