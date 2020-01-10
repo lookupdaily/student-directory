@@ -71,7 +71,7 @@ end
 
 #print methods
 def print_header
-  puts "The students of Villains Academy".center(80)
+  puts "The Students of Villains Academy".center(80)
   puts ""
   puts "-" * 80
   puts ""
@@ -123,10 +123,9 @@ end
   #end
 
 def print_footer(students)
-  puts ""
 
   if students.count == 0
-    puts "No students enrolled yet".center(80)
+    puts "No students enrolled"
   elsif students.count == 1
     puts "We have 1 great student enrolled".center(80)
   else
@@ -159,10 +158,13 @@ end
 
 students = input_students
 #calling methods to run program
+
 #filter_by_length(students)
-print_header
-#list(students)
-list_by_cohort(students)
+if !students.empty?
+  print_header
+  list(students)
+  #list_by_cohort(students)
+end
 print_footer(students)
 #existing_cohorts(students)
 #filter(students)
