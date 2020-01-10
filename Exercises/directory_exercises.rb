@@ -12,7 +12,6 @@ def input_students
   while !name.empty? do
     puts "Cohort (month starting on site):"
     input = gets.chomp.downcase
-    month = select_cohort(input)
     puts "Gender (M/F/N):"
     gender = gets.chomp
     puts "Country of birth:"
@@ -20,7 +19,7 @@ def input_students
     puts "Hobbies (separate with ,):"
     hobbies = gets.chomp.strip.split(","||", ")
     #add the student hash to the array
-    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: month}
+    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: select_cohort(input)}
     puts "Now we have #{students.count} students"
     # get another name from the user
     puts "Full name:"
@@ -46,17 +45,24 @@ def select_cohort(input)
     ["november", "nov", 11],
     ["december", "dec", 12]
   ]
-  cohort = nil
 
-  #until cohort != nil do
-    selected_month = months.select {|month| month.include?(input)}.flatten!
-    #if selected_month == nil
-  #    puts "You entered an invalid month. Please try again"
-  #    input = gets.chomp.downcase
-  #  else
-      cohort = selected_month[0].to_sym
-  #  end
-#  end
+  while true do
+    if input == ""
+      selected_month = ["undeclared"]
+    else
+      selected_month = months.select {|month| month.include?(input)}.flatten!
+    end
+
+    if selected_month == nil
+      puts "You entered an invalid month. Please enter again"
+      input = gets.chomp.downcase
+    else
+      break
+    end
+
+  end
+
+  cohort = selected_month[0].to_sym
 
 end
 
