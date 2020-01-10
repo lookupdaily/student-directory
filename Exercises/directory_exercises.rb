@@ -12,6 +12,7 @@ def input_students
   while !name.empty? do
     puts "Cohort (month starting on site):"
     input = gets.chomp.downcase
+    month = select_cohort(input)
     puts "Gender (M/F/N):"
     gender = gets.chomp
     puts "Country of birth:"
@@ -19,7 +20,7 @@ def input_students
     puts "Hobbies (separate with ,):"
     hobbies = gets.chomp.strip.split(","||", ")
     #add the student hash to the array
-    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: select_cohort(input)}
+    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: month}
     puts "Now we have #{students.count} students"
     # get another name from the user
     puts "Full name:"
@@ -66,6 +67,12 @@ def select_cohort(input)
 
 end
 
+def existing_cohorts(students)
+  cohorts = []
+  students.each do |student|
+    cohorts.push(student[:cohort]) if !cohorts.include?(student[:cohort])
+  end
+end
 
 #print methods
 def print_header
@@ -140,4 +147,5 @@ filter_by_length(students)
 print_header
 list(students)
 print_footer(students)
-filter(students)
+existing_cohorts(students)
+#filter(students)
