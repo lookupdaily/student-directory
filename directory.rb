@@ -1,39 +1,46 @@
+@students = []
+
 def interactive_menu
-  students = []
   loop do
-    #1. print the menu and ask the user what to do
-    puts "1. Input the students"
-    puts "2. Show the students"
-    puts "9. Exit"
-    #2. read the input and save it into a variable
-    selection = gets.chomp
-    #3. do what the user has asked
-    case selection
-      when "1"
-        students = input_students
-      when "2"
-        if !students.empty?
-          print_header
-          list(students)
-        end
-        print_footer(students)
-      when "9"
-        exit
-      when "exit"
-        exit
-      else
-        puts "error: enter 1-9"
-    end
+    print_menu
+    process(gets.chomp)
   end
 end
 
+#menu methods
+def print_menu
+  puts "1. Input the students"
+  puts "2. Show the students"
+  puts "9. Exit"
+end
+
+def show_students
+  if !@students.empty?
+    print_header
+    print_list
+  end
+  print_footer
+end
+
+def process(selection)
+  case selection
+    when "1"
+      input_students
+    when "2"
+      show_students
+    when "9"
+      exit
+    when "exit"
+      exit
+    else
+      puts "error: enter 1-9"
+  end
+end
 
 #input methods
 def input_students
   puts "Please enter details of students"
   puts "To continue/complete hit return (twice to finish)"
-  # create an empty array
-  students = []
   #get the first name
   puts "Full name:"
   name = gets.chomp
@@ -47,14 +54,13 @@ def input_students
     puts "Country of birth:"
     country = gets.chomp
     #add the student hash to the array
-    students << {name: name, gender: gender, country: country, cohort: month}
-    puts "Now we have #{students.count} students"
+    @students << {name: name, gender: gender, country: country, cohort: month}
+    puts "Now we have #{@students.count} students"
     # get another name from the user
     puts "Full name:"
     name = gets.chomp
   end
   #return the array of students
-  students
 end
 
 #validate inputs
@@ -89,7 +95,6 @@ def select_cohort(input)
     end
 
   end
-
   cohort = selected_month[0].to_sym
 
 end
@@ -101,20 +106,23 @@ def print_header
   puts ""
 end
 
-def list(students)
-  students.each_with_index do |student, index|
+def print_list
+  @students.each_with_index do |student, index|
     puts "#{index + 1}. #{student[:name]} (#{student[:cohort]} cohort)"
   end
+  puts ""
 end
 
-def print_footer(students)
-  if students.count == 0
+def print_footer
+  if @students.count == 0
     puts "No students enrolled"
-  elsif students.count == 1
-    puts "We have 1 great student enrolled".center(80)
+  elsif @students.count == 1
+    puts "We have 1 great student enrolled"
   else
-    puts "Overall, we have #{students.count} great students".center(80)
+    puts "Overall, we have #{@students.count} great students"
   end
+  puts "-" * 80
+  puts ""
 end
 
 interactive_menu
