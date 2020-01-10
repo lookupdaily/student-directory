@@ -19,7 +19,7 @@ def input_students
 end
 
 def print_header
-  puts "The students of Villains Academy"
+  puts "The Students of Villains Academy"
   puts "---------------"
 end
 
