@@ -1,3 +1,5 @@
+#test students in array
+#students = [["Dr. Hannibal Lecter", "M", "USA" , :november], ["Darth Vader", "M", "USA", :february], ["Nurse Ratched", "F", "UK", :november], ["Michael Corleone", "M", "USA", :january], ["Alex DeLarge", "M", "France", :november], ["The Wicked Witch of the West", "F", "Oz", :march], ["Terminator", "N", "UK", :january], ["Freddy Krueger", "M", "USA", :february], ["The Joker", "M", "USA", :february], ["Joffrey Baratheon", "M", "USA", :november], ["Norman Bates", "M", "UK", :december]]
 
 #adding students
 def input_students
@@ -67,13 +69,6 @@ def select_cohort(input)
 
 end
 
-def existing_cohorts(students)
-  cohorts = []
-  students.each do |student|
-    cohorts.push(student[:cohort]) if !cohorts.include?(student[:cohort])
-  end
-end
-
 #print methods
 def print_header
   puts "The students of Villains Academy".center(80)
@@ -91,9 +86,27 @@ def list(students)
     print "#{student[:gender]}".center(9)
     print "|"
     print "#{student[:country]}".center(9)
-    print "|"
-    print "#{student[:cohort].capitalize} Cohort".center(20) + "\n"
+    print "|\n"
+    #print "#{student[:cohort].capitalize} Cohort".center(20) + "\n"
   end
+
+end
+
+def list_by_cohort(students)
+  cohorts = []
+
+  students.each do |student|
+    cohorts << student[:cohort] unless cohorts.include?(student[:cohort])
+  end
+
+  cohorts.each do |cohort|
+    puts "#{cohort.capitalize} Cohort:"
+    puts ""
+    list(students.select {|student| student[:cohort] == cohort})
+    puts "-" * 80
+  end
+
+end
 
   #loop method
   #i = 0
@@ -108,8 +121,6 @@ def list(students)
     #puts "#{i + 1}. #{students[i][:name]} (#{students[i][:cohort].capitalize} Cohort)"
   #  i += 1
   #end
-
-end
 
 def print_footer(students)
   puts ""
@@ -143,9 +154,10 @@ end
 
 students = input_students
 #calling methods to run program
-filter_by_length(students)
+#filter_by_length(students)
 print_header
-list(students)
+#list(students)
+list_by_cohort(students)
 print_footer(students)
-existing_cohorts(students)
+#existing_cohorts(students)
 #filter(students)
