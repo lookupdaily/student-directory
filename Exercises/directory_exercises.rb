@@ -124,9 +124,14 @@ end
 
 def print_footer(students)
   puts ""
-  puts "-" * 80
-  puts ""
-  puts "Overall, we have #{students.count} great students".center(80)
+
+  if students.count == 0
+    puts "No students enrolled yet".center(80)
+  elsif students.count == 1
+    puts "We have 1 great student enrolled".center(80)
+  else
+    puts "Overall, we have #{students.count} great students".center(80)
+  end
 end
 
 #filter methods
