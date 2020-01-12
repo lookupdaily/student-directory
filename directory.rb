@@ -53,13 +53,13 @@ def input_students
   end
 end
 
+#print methods
 def print_header
   puts "The Students of Villains Academy".center(80)
   puts ""
   puts "-" * 80
   puts ""
 end
-
 
 def print_students
   @students.each_with_index do |student, index|
