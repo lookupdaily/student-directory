@@ -17,7 +17,7 @@ end
 def show_students
   if !@students.empty?
     print_header
-    print_list
+    print_students
   end
   print_footer
 end
@@ -39,64 +39,18 @@ end
 
 #input methods
 def input_students
-  puts "Please enter details of students"
-  puts "To continue/complete hit return (twice to finish)"
-  #get the first name
-  puts "Full name:"
+  puts "Please enter the names of the students"
+  puts "To finish just hit return twice"
   name = gets.chomp
   # while the name is not empty, repeat this code
   while !name.empty? do
-    puts "Cohort (month starting on site):"
-    input = gets.chomp.downcase
-    month = select_cohort(input)
-    puts "Gender (M/F/N):"
-    gender = gets.chomp
-    puts "Country of birth:"
-    country = gets.chomp
     #add the student hash to the array
-    @students << {name: name, gender: gender, country: country, cohort: month}
+    @students << {name: name, cohort: :november}
     puts "Now we have #{@students.count} students"
     # get another name from the user
     puts "Full name:"
     name = gets.chomp
   end
-  #return the array of students
-end
-
-#validate inputs
-def select_cohort(input)
-  months = [
-    ["january", "jan", 1],
-    ["february", "feb", 2],
-    ["march", "mar", 3],
-    ["april", "apr", 4],
-    ["may", 5],
-    ["june", "jun", 6],
-    ["july", "jul", 7],
-    ["august", "aug", 8],
-    ["september", "sep", 9],
-    ["october", "oct", 10],
-    ["november", "nov", 11],
-    ["december", "dec", 12]
-  ]
-
-  while true do
-    if input == ""
-      selected_month = ["undeclared"]
-    else
-      selected_month = months.select {|month| month.include?(input)}.flatten!
-    end
-
-    if selected_month == nil
-      puts "You entered an invalid month. Please enter again"
-      input = gets.chomp.downcase
-    else
-      break
-    end
-
-  end
-  cohort = selected_month[0].to_sym
-
 end
 
 def print_header
@@ -106,7 +60,8 @@ def print_header
   puts ""
 end
 
-def print_list
+
+def print_students
   @students.each_with_index do |student, index|
     puts "#{index + 1}. #{student[:name]} (#{student[:cohort]} cohort)"
   end
