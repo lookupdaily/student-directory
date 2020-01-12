@@ -18,5 +18,5 @@ ruby directory.rb <filename.csv>
 The data must be saved in the following format:
 
 | name | cohort |
-| name | cohort |
+| ---- | ------ |
 | name | cohort |
