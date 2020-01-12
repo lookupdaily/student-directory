@@ -11,23 +11,19 @@ end
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
+  puts "3. Save the list to students.csv"
   puts "9. Exit"
 end
 
-def show_students
-  if !@students.empty?
-    print_header
-    print_students
-  end
-  print_footer
-end
-
 def process(selection)
+  selection.gsub!(".", "") if selection.include?(".")
   case selection
     when "1"
       input_students
     when "2"
       show_students
+    when "3"
+      save_students
     when "9"
       exit
     when "exit"
@@ -37,7 +33,6 @@ def process(selection)
   end
 end
 
-#input methods
 def input_students
   puts "Please enter the names of the students"
   puts "To finish just hit return twice"
@@ -53,6 +48,28 @@ def input_students
   end
 end
 
+def show_students
+  if !@students.empty?
+    print_header
+    print_students
+  end
+  print_footer
+end
+
+def save_students
+  #open the file for writing
+  file = File.open("students.csv", "w")
+  #iterate over the array of Students
+  @students.each do |student|
+    student_data = [student[:name], student[:cohort]]
+    csv_line = student_data.join(",")
+    file.puts csv_line
+  end
+  file.close
+end
+
+
+private
 #print methods
 def print_header
   puts "The Students of Villains Academy".center(80)
