@@ -98,16 +98,15 @@ class Directory
 
   private
   def try_load_students
-    filename = ARGV.first #first argument from the command line
-
-    return if filename.nil? #get out of the method if it isn't given
+    filename = ARGV.first || "students.csv"
 
     if File.exist?(filename)
       load_students(filename)
       puts "Loaded #{@students.count} from #{filename}"
     else
-      puts "Sorry, #{filename} doesn't exist."
-      exit
+      puts "Sorry, #{filename} doesn't exist." unless filename == "students.csv"
+      puts "Loaded blank directory."
+      return
     end
   end
 
