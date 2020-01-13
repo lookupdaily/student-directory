@@ -58,12 +58,11 @@ class Directory
     puts "Please enter the names of the students"
     puts "To finish just hit return twice"
     name = STDIN.gets.chomp
-    # while the name is not empty, repeat this code
+
     until name.empty? do
-      #add the student hash to the array
       add(name)
       puts "Now we have #{@students.count} students"
-      # get another name from the user
+
       puts "Full name:"
       name = STDIN.gets.chomp
     end
@@ -78,9 +77,8 @@ class Directory
   end
 
   def save_students
-    #open the file for writing
     file = File.open("students.csv", "w")
-    #iterate over the array of Students
+
     @students.each do |student|
       student_data = [student[:name], student[:cohort]]
       csv_line = student_data.join(",")
