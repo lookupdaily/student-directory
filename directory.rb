@@ -40,6 +40,7 @@ def input_students
   puts "Please enter the names of the students"
   puts "To finish just hit return twice"
   name = gets.chomp
+  cohort = :november
   # while the name is not empty, repeat this code
   while !name.empty? do
     #add the student hash to the array
@@ -95,6 +96,9 @@ def try_load_students
   end
 end
 
+def students_to_array(name, cohort)
+  @students << {name: name, cohort: cohort.to_sym}
+end
 
 def print_header
   puts "The Students of Villains Academy".center(80)
