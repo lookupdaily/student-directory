@@ -29,8 +29,8 @@ class Directory
   def print_menu
     puts "1. Input the students"
     puts "2. Show the students"
-    puts "3. Save the list to students.csv"
-    puts "4. Load the list from students.csv"
+    puts "3. Save the list"
+    puts "4. Load the list"
     puts "9. Exit"
   end
 
@@ -44,7 +44,7 @@ class Directory
       when "3"
         save_students
       when "4"
-        load_students
+        load
       when "9"
         exit
       when "exit"
@@ -56,16 +56,14 @@ class Directory
 
   def input_students
     puts "Please enter the names of the students"
-    puts "To finish just hit return twice"
-    name = STDIN.gets.chomp
+    puts "To finish just hit #"
 
-    until name.empty? do
-      add(name)
-      puts "Now we have #{@students.count} students"
-
-      puts "Full name:"
+    loop do
       name = STDIN.gets.chomp
+      break if name == "#"
+      add(name)
     end
+    puts "Now we have #{student_count}"
   end
 
   def show_students
@@ -85,15 +83,17 @@ class Directory
       file.puts csv_line
     end
     file.close
+    puts "#{student_count} saved to 'students.csv'"
   end
 
-  def load_students(filename = "students.csv")
+  def load(filename = "students.csv")
     file = File.open(filename, "r")
     file.readlines.each do |line|
       name, cohort = line.chomp.split(",")
       add(name)
     end
     file.close
+    puts "#{student_count} loaded from #{filename}"
   end
 
   private
@@ -101,11 +101,10 @@ class Directory
     filename = ARGV.first || "students.csv"
 
     if File.exist?(filename)
-      load_students(filename)
-      puts "Loaded #{@students.count} from #{filename}"
+      load(filename)
     else
       puts "Sorry, #{filename} doesn't exist." unless filename == "students.csv"
-      puts "Loaded blank directory."
+      puts "Loaded blank directory"
       return
     end
   end
@@ -113,6 +112,14 @@ class Directory
   def add(name)
     student = Student.new(name, :november)
     @students << student.record
+  end
+
+  def student_count
+    if @students.count == 1
+      "1 student"
+    else
+      "#{@students.count} students"
+    end
   end
 
   def print_header
@@ -130,13 +137,7 @@ class Directory
   end
 
   def print_footer
-    if @students.count == 0
-      puts "No students enrolled"
-    elsif @students.count == 1
-      puts "We have 1 great student enrolled"
-    else
-      puts "Overall, we have #{@students.count} great students"
-    end
+    puts "We have #{student_count} enrolled."
     puts "-" * 80
     puts ""
   end
