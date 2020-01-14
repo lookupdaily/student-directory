@@ -71,7 +71,7 @@ class Directory
         # should this start a new session? 
       when "9"
         header("Exit")
-        prompt_to_save unless session_data == CSV.read(@filename)
+        prompt_to_save if unsaved_students? 
         puts "Exiting Directory..."
         exit
       else
@@ -102,15 +102,14 @@ class Directory
   end
 
   def enter_filename
-    print "enter filename: "
+    print "enter new filename: "
     answer = gets.chomp
     @filename = answer unless answer.size < 1
-    #@filename += ".csv" unless @filename.include?(".csv") 
   end
 
   def save_students
-    puts "To save students to #{@filename} hit return."
-    puts "Or "
+    puts "To save students to '#{@filename}' hit return."
+    print "Or "
     enter_filename 
 
     CSV.open(@filename, "w") do |csv|
@@ -123,7 +122,7 @@ class Directory
   end
 
   def prompt_to_save
-      puts "This option will cause you to lose any unsaved changes." 
+      puts "You have unsaved changes." 
       puts "Do you want to save your directory first?"
       puts ""
       loop do
@@ -158,7 +157,7 @@ class Directory
       end
       puts "#{student_count} loaded from #{@filename}\n\n"
     else
-      puts "Sorry, #{@filename} doesn't exist." 
+      puts "Couldn't locate file: #{@filename}"
       return
     end
   end
@@ -172,7 +171,13 @@ class Directory
   end
 
   def unsaved_students?
-    session_data != CSV.read(@filename) ? true : false
+    if !File.exist?(@filename)
+      true
+    elsif session_data != CSV.read(@filename) 
+      true
+    else
+      false
+    end
   end
 
   private
@@ -221,5 +226,5 @@ class Directory
 
 end
 
-new_directory = Directory.new
+session = Directory.new
 
