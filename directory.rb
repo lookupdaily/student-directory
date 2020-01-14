@@ -17,9 +17,9 @@ end
 class Directory
   def initialize
     @students = []
-    @filename = 
-    header
+    @filename = nil
     try_load_students
+    header
     interactive_menu
   end
 
@@ -107,33 +107,33 @@ class Directory
       file.puts csv_line
     end
     file.close
-    puts "#{student_count} saved to #{@filename}'"
+    puts "#{student_count} saved to #{@filename}"
   end
 
   def load_file
     print "To load #{@filename} hit return. Or "
     enter_filename 
 
-    file = File.open(@filename, "r")
-    file.readlines.each do |line|
-      name, cohort = line.chomp.split(",")
-      add(name)
+    if File.exist?(@filename)
+      file = File.open(@filename, "r")
+      file.readlines.each do |line|
+        name, cohort = line.chomp.split(",")
+        add(name)
+      end
+      file.close
+      puts "#{student_count} loaded from #{@filename}\n\n"
+    else
+      puts "Sorry, #{@filename} doesn't exist." 
+      return
     end
-    file.close
-    puts "#{student_count} loaded from #{@filename}\n\n"
+  
   end
 
   private
   def try_load_students
     @filename = ARGV.first || "students.csv"
-
-    if File.exist?(@filename)
-      load_file
-    else
-      puts "Sorry, #{@filename} doesn't exist." 
-      puts "Loaded blank directory"
-      return
-    end
+    load_file
+    puts "Loaded blank directory" if !File.exist?(@filename)
   end
 
   def add(name)
