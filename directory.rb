@@ -11,12 +11,14 @@ class Student
 end
 
 #add class for visual environment? menu, print, layout
+#add separate classes for session and database?
 
 #load, view, edit, and save the directory
 class Directory
   def initialize
     @students = []
-    print_header
+    @filename = 
+    header
     try_load_students
     interactive_menu
   end
@@ -30,8 +32,9 @@ class Directory
 
   #menu methods
   def print_menu
+    puts ""
     puts " MENU ".center(18, "-")
-    puts "\nEnter 1-9\n\n"
+    puts "\n" + "(enter 1-9)".center(18) + "\n\n"
     puts "1. Input students"
     puts "2. View students"
     puts "3. Save the list"
@@ -43,18 +46,18 @@ class Directory
     selection.gsub!(".", "") if selection.include?(".")
     case selection
       when "1"
-        print_header("Input Students")
+        header("Input Students")
         input_students
       when "2"
-        print_header("Show Students")
+        header("Show Students")
         puts ""
         show_students
       when "3"
-        print_header("Save Directory")
+        header("Save Directory")
         save_students
       when "4"
-        print_header("Load Students")
-        load
+        header("Load Students")
+        load_file
         show_students
       when "9"
         puts "Exiting Directory..."
@@ -85,8 +88,18 @@ class Directory
     print_footer
   end
 
+  def enter_filename
+    puts "enter new filename:"
+    answer = gets.chomp
+    @filename = answer unless answer.size < 1
+    #@filename += ".csv" unless @filename.include?(".csv") 
+  end
+
   def save_students
-    file = File.open("students.csv", "w")
+    print "To save students to #{@filename} hit return. Or "
+    enter_filename 
+
+    file = File.open(@filename, "w")
 
     @students.each do |student|
       student_data = [student[:name], student[:cohort]]
@@ -94,27 +107,30 @@ class Directory
       file.puts csv_line
     end
     file.close
-    puts "#{student_count} saved to 'students.csv'"
+    puts "#{student_count} saved to #{@filename}'"
   end
 
-  def load(filename = "students.csv")
-    file = File.open(filename, "r")
+  def load_file
+    print "To load #{@filename} hit return. Or "
+    enter_filename 
+
+    file = File.open(@filename, "r")
     file.readlines.each do |line|
       name, cohort = line.chomp.split(",")
       add(name)
     end
     file.close
-    puts "#{student_count} loaded from #{filename}\n\n"
+    puts "#{student_count} loaded from #{@filename}\n\n"
   end
 
   private
   def try_load_students
-    filename = ARGV.first || "students.csv"
+    @filename = ARGV.first || "students.csv"
 
-    if File.exist?(filename)
-      load(filename)
+    if File.exist?(@filename)
+      load_file
     else
-      puts "Sorry, #{filename} doesn't exist." unless filename == "students.csv"
+      puts "Sorry, #{@filename} doesn't exist." 
       puts "Loaded blank directory"
       return
     end
@@ -133,7 +149,7 @@ class Directory
     end
   end
 
-  def print_header(title = "The Students of Villains Academy")
+  def header(title = "The Students of Villains Academy")
     puts ""
     puts "-" * 80
     puts ""
