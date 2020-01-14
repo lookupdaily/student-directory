@@ -19,6 +19,7 @@ class Directory
   def initialize
     @students = []
     @filename = nil
+    #@title = "New Student Directory"
     try_load_students
     header
     interactive_menu
@@ -39,8 +40,12 @@ class Directory
     puts "1. Input students"
     puts "2. View students"
     puts "3. Save the list"
-    puts "4. Load a list"
-    puts "9. Exit"
+    puts "4. Load a new directory" 
+    # puts "5. Search Directory"
+    # puts "6. View records"
+    # puts "7. Rename directory"
+    # puts "8. Clear directory"
+    puts "9. Exit" 
   end
 
   def process(selection)
@@ -51,20 +56,28 @@ class Directory
         input_students
       when "2"
         header("Show Students")
-        puts ""
         show_students
       when "3"
         header("Save Directory")
         save_students
       when "4"
         header("Load Students")
+        save_prompt
         load_file
+        # should this start a new session? 
+        # user should be prompted to save work
       when "9"
+        header("Exit")
+        save_prompt
         puts "Exiting Directory..."
         exit
+        # user should be prompted to save work
       when "exit"
+        header("Exit")
+        save_prompt
         puts "Exiting Directory..."
         exit
+        # user should be prompted to save work
       else
         puts "error: enter 1-9"
     end
@@ -107,6 +120,28 @@ class Directory
     puts "#{student_count} saved to #{@filename}"
   end
 
+  def save_prompt
+    puts "This option will cause you to lose any unsaved changes." 
+    puts "Do you want to save your directory first?"
+    loop do
+      puts "enter yes -y) / no -n / cancel -c)"
+      user_input = gets.chomp
+
+      if user_input == "yes" || user_input == "y" || user_input == "-y"
+        save_students
+        break
+      elsif user_input == "no" || user_input == "n" || user_input == "-n"
+        break 
+      elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
+        interactive_menu
+        break
+      else 
+        puts "Not an option. Try again."
+      end 
+    end
+    return
+  end
+
   def load_file
     print "To load #{@filename} hit return. Or "
     enter_filename 
@@ -121,7 +156,6 @@ class Directory
       puts "Sorry, #{@filename} doesn't exist." 
       return
     end
-  
   end
 
   private
