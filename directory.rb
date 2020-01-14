@@ -12,6 +12,8 @@ class Student
 end
 
 #add class for visual environment? menu, print, layout
+class Session
+end
 #add separate classes for session and database?
 
 #load, view, edit, and save the directory
@@ -59,22 +61,22 @@ class Directory
         show_students
       when "3"
         header("Save Directory")
-        save_students
+        save_students 
       when "4"
         header("Load Students")
-        save_prompt
+        prompt_to_save if unsaved_students? 
         load_file
         # should this start a new session? 
         # user should be prompted to save work
       when "9"
         header("Exit")
-        save_prompt
+        prompt_to_save unless session_data == CSV.read(@filename)
         puts "Exiting Directory..."
         exit
         # user should be prompted to save work
       when "exit"
         header("Exit")
-        save_prompt
+        prompt_to_save if unsaved_students?
         puts "Exiting Directory..."
         exit
         # user should be prompted to save work
@@ -97,8 +99,12 @@ class Directory
   end
 
   def show_students
-    print_students unless @students.empty?
-    print_footer
+    unless @students.empty?
+      print_status
+      print_students 
+    else
+      puts "There are currently no students in Villains Academy".center(80, "-")
+    end
   end
 
   def enter_filename
@@ -113,6 +119,7 @@ class Directory
     enter_filename 
 
     CSV.open(@filename, "w") do |csv|
+      # csv << session_data
       @students.each do |student|
         csv << [student[:name], student[:cohort]]
       end
@@ -120,25 +127,27 @@ class Directory
     puts "#{student_count} saved to #{@filename}"
   end
 
-  def save_prompt
-    puts "This option will cause you to lose any unsaved changes." 
-    puts "Do you want to save your directory first?"
-    loop do
-      puts "enter yes -y) / no -n / cancel -c)"
-      user_input = gets.chomp
+  def prompt_to_save
+    #if session_data != CSV.read(@filename)
+      puts "This option will cause you to lose any unsaved changes." 
+      puts "Do you want to save your directory first?"
+      loop do
+        puts "enter yes -y) / no -n / cancel -c)"
+        user_input = gets.chomp
 
-      if user_input == "yes" || user_input == "y" || user_input == "-y"
-        save_students
-        break
-      elsif user_input == "no" || user_input == "n" || user_input == "-n"
-        break 
-      elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
-        interactive_menu
-        break
-      else 
-        puts "Not an option. Try again."
-      end 
-    end
+        if user_input == "yes" || user_input == "y" || user_input == "-y"
+          save_students
+          break
+        elsif user_input == "no" || user_input == "n" || user_input == "-n"
+          break 
+        elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
+          interactive_menu
+          break
+        else 
+          puts "Not an option. Try again."
+        end 
+      end
+    #end
     return
   end
 
@@ -149,6 +158,7 @@ class Directory
     if File.exist?(@filename)
       CSV.foreach(@filename) do |row|
         name, cohort = row
+        break if name.nil?
         add(name)
       end
       puts "#{student_count} loaded from #{@filename}\n\n"
@@ -156,6 +166,18 @@ class Directory
       puts "Sorry, #{@filename} doesn't exist." 
       return
     end
+  end
+
+  def session_data
+    student_data = []
+    @students.each do |student|
+      student_data << [student[:name], student[:cohort].to_s]
+    end
+    student_data
+  end
+
+  def unsaved_students?
+    session_data != CSV.read(@filename) ? true : false
   end
 
   private
@@ -195,13 +217,14 @@ class Directory
     puts ""
   end
 
-  def print_footer
-    puts "Showing #{@students.count} out of #{student_count}"
-    puts "-" * 80
+  def print_status
+    puts "Showing #{@students.count} out of #{student_count}".center(80, "-")
     puts ""
+    # puts "-" * 80
+    # puts ""
   end
 
 end
 
-Directory.new
+new_directory = Directory.new
 
