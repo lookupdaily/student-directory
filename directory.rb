@@ -1,3 +1,4 @@
+require 'CSV'
 #create each student to add to the directory
 class Student
   def initialize(name, cohort)
@@ -98,11 +99,9 @@ class Directory
     print "To save students to #{@filename} hit return. Or "
     enter_filename 
 
-    File.open(@filename, "w") do |file| 
+    CSV.open(@filename, "w") do |csv|
       @students.each do |student|
-        student_data = [student[:name], student[:cohort]]
-        csv_line = student_data.join(",")
-        file.puts csv_line
+        csv << [student[:name], student[:cohort]]
       end
     end
     puts "#{student_count} saved to #{@filename}"
@@ -113,11 +112,9 @@ class Directory
     enter_filename 
 
     if File.exist?(@filename)
-      File.open(@filename, "r") do |file|
-        file.readlines.each do |line|
-          name, cohort = line.chomp.split(",")
-          add(name)
-        end
+      CSV.foreach(@filename) do |row|
+        name, cohort = row
+        add(name)
       end
       puts "#{student_count} loaded from #{@filename}\n\n"
     else
