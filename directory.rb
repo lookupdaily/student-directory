@@ -10,16 +10,25 @@ class Student
 
 end
 
-#add class for visual environment? menu, print, layout
+#add class for session
 
-#load, view, edit, and save the directory
+
+#create, review, edit, and delete the directory
 class Directory
   def initialize
     @students = []
     print_header
     try_load_students
-    interactive_menu
+    #interactive_menu
   end
+
+  # @menu = {
+  #   1 => {title: "Input Students", action: input},
+  #   2 => {title: "View Students", action: self.method(:show_students)},
+  #   3 => {title: "Save Directory", action: self.method(:save_students)},
+  #   4 => {title: "Load Directory", action: self.method(:load)},
+  #   9 => {title: "Exit", action: exit}
+  # }
 
   def interactive_menu
     loop do
@@ -37,10 +46,15 @@ class Directory
     puts "3. Save the list"
     puts "4. Load a list"
     puts "9. Exit"
+    # @menu.each do |key, value|
+    #   puts "#{key}. #{value[:title]}"
+    # end
   end
 
   def process(selection)
     selection.gsub!(".", "") if selection.include?(".")
+    # @menu[selection][:action].()
+    # print_header(MENU[selection][:title])
     case selection
       when "1"
         print_header("Input Students")
@@ -68,7 +82,7 @@ class Directory
     
   end
   
-  def input_students
+  def input
     puts "Please enter the names of the students"
     puts "To finish just return twice or hit #"
 
@@ -108,6 +122,7 @@ class Directory
   end
 
   private
+
   def try_load_students
     filename = ARGV.first || "students.csv"
 
@@ -159,4 +174,3 @@ class Directory
 end
 
 Directory.new
-
