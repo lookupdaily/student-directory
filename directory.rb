@@ -38,7 +38,7 @@ class Directory
   def print_menu
     puts ""
     puts " MENU ".center(18, "-")
-    puts "\n" + "(enter 1-9)".center(18) + "\n\n"
+    puts ""
     puts "1. Input students"
     puts "2. View students"
     puts "3. Save the list"
@@ -48,6 +48,8 @@ class Directory
     # puts "7. Rename directory"
     # puts "8. Clear directory"
     puts "9. Exit" 
+    puts ""
+    print "enter 1-9: "
   end
 
   def process(selection)
@@ -67,19 +69,11 @@ class Directory
         prompt_to_save if unsaved_students? 
         load_file
         # should this start a new session? 
-        # user should be prompted to save work
       when "9"
         header("Exit")
         prompt_to_save unless session_data == CSV.read(@filename)
         puts "Exiting Directory..."
         exit
-        # user should be prompted to save work
-      when "exit"
-        header("Exit")
-        prompt_to_save if unsaved_students?
-        puts "Exiting Directory..."
-        exit
-        # user should be prompted to save work
       else
         puts "error: enter 1-9"
     end
@@ -108,18 +102,19 @@ class Directory
   end
 
   def enter_filename
-    puts "enter new filename:"
+    print "enter filename: "
     answer = gets.chomp
     @filename = answer unless answer.size < 1
     #@filename += ".csv" unless @filename.include?(".csv") 
   end
 
   def save_students
-    print "To save students to #{@filename} hit return. Or "
+    puts "To save students to #{@filename} hit return."
+    puts "Or "
     enter_filename 
 
     CSV.open(@filename, "w") do |csv|
-      # csv << session_data
+      csv.truncate(0)
       @students.each do |student|
         csv << [student[:name], student[:cohort]]
       end
@@ -128,11 +123,11 @@ class Directory
   end
 
   def prompt_to_save
-    #if session_data != CSV.read(@filename)
       puts "This option will cause you to lose any unsaved changes." 
       puts "Do you want to save your directory first?"
+      puts ""
       loop do
-        puts "enter yes -y) / no -n / cancel -c)"
+        print "enter yes -y / no -n / cancel -c: "
         user_input = gets.chomp
 
         if user_input == "yes" || user_input == "y" || user_input == "-y"
@@ -147,12 +142,12 @@ class Directory
           puts "Not an option. Try again."
         end 
       end
-    #end
     return
   end
 
   def load_file
-    print "To load #{@filename} hit return. Or "
+    puts "To load #{@filename} hit return."
+    print "Or "
     enter_filename 
 
     if File.exist?(@filename)
