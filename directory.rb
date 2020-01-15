@@ -14,20 +14,12 @@ class Student
 end
 
 #add class for visual environment? menu, print, layout
-# class Session
-# end
-#add separate classes for session and database?
+class Interface
 
-#load, view, edit, and save the directory
-class Directory
-  attr_accessor :students, :filename, :title 
 
   def initialize
-    @students = []
-    @filename = "students.csv"
-    @title = "Student Directory"
-    try_load_students
-    header
+    @directory = Directory.new
+    header(@directory.title)
     interactive_menu
   end
 
@@ -57,33 +49,91 @@ class Directory
   end
 
   def process(selection)
-    selection.gsub!(".", "") if selection.include?(".")
-    case selection
-      when "1"
-        header("Input Students")
-        input_students
-      when "2"
-        header("Show Students")
-        show_students
-      when "3"
-        header("Save Directory")
-        save_students 
-      when "4"
-        header("Load Students")
-        prompt_to_save if unsaved_students? 
-        load_file
-        # should this start a new session? 
-      when "9"
-        header("Exit")
-        prompt_to_save if unsaved_students? 
-        puts "Exiting Directory..."
-        exit
-      else
-        puts "error: enter 1-9"
+      selection.gsub!(".", "") if selection.include?(".")
+      case selection
+        when "1"
+          header("Input Students")
+          @directory.input_students
+        when "2"
+          header("Show Students")
+          @directory.show_students
+        when "3"
+          header("Save Directory")
+          @directory.save_students 
+        when "4"
+          header("Load Students")
+          prompt_to_save if @directory.unsaved? 
+          @directory = Directory.new 
+        when "9"
+          header("Exit")
+          prompt_to_save if @directory.unsaved? 
+          puts "Exiting Directory..."
+          exit
+        else
+          puts "error: enter 1-9"
+      end
     end
-    
+
+    def header(title)
+      puts ""
+      puts "-" * 80
+      puts ""
+      puts title.center(80)
+      puts ""
+      puts "-" * 80
+      puts ""
+    end
+
+    def prompt_to_save
+      puts "You have unsaved changes." 
+      puts "Do you want to save your directory first?"
+      puts ""
+      loop do
+        print "enter yes -y / no -n / cancel -c: "
+        user_input = gets.chomp
+
+        if user_input == "yes" || user_input == "y" || user_input == "-y"
+          @directory.save_students
+          break
+        elsif user_input == "no" || user_input == "n" || user_input == "-n"
+          break 
+        elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
+          interactive_menu
+          break
+        else 
+          puts "Not an option. Try again."
+        end 
+      end
+    return
   end
+
+end
+#add separate classes for session and database?
+
+#load, view, edit, and save the directory
+class Directory
+  attr_accessor :students, :filename, :academy 
+
+  def initialize(academy = "Villains Academy")
+    @students = []
+    @filename = "students.csv"
+    try_load_students
+    set_title
+    # header
+    # interactive_menu
+  end  
   
+  def set_title
+    print "Enter academy title: "
+    @academy = gets.chomp
+
+    @academy = "New Student Directory" if @academy.size < 1
+  end
+
+  def title
+    @academy
+  end
+
   def input_students
     puts "Please enter the names of the students"
     puts "To finish just return twice or hit #"
@@ -125,29 +175,6 @@ class Directory
     puts "#{student_count} saved to #{@filename}"
   end
 
-  def prompt_to_save
-      puts "You have unsaved changes." 
-      puts "Do you want to save your directory first?"
-      puts ""
-      loop do
-        print "enter yes -y / no -n / cancel -c: "
-        user_input = gets.chomp
-
-        if user_input == "yes" || user_input == "y" || user_input == "-y"
-          save_students
-          break
-        elsif user_input == "no" || user_input == "n" || user_input == "-n"
-          break 
-        elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
-          interactive_menu
-          break
-        else 
-          puts "Not an option. Try again."
-        end 
-      end
-    return
-  end
-
   def load_file
     puts "To load #{@filename} hit return."
     print "Or "
@@ -174,7 +201,7 @@ class Directory
     student_data
   end
 
-  def unsaved_students?
+  def unsaved?
     if !File.exist?(@filename)
       true
     elsif session_data != CSV.read(@filename) 
@@ -204,15 +231,7 @@ class Directory
     end
   end
 
-  def header(title = "The Students of Villains Academy")
-    puts ""
-    puts "-" * 80
-    puts ""
-    puts title.center(80)
-    puts ""
-    puts "-" * 80
-    puts ""
-  end
+  
 
   def print_students
     @students.each_with_index do |student, index|
@@ -230,5 +249,5 @@ class Directory
 
 end
 
-session = Directory.new
+session = Interface.new
 
