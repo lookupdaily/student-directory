@@ -49,61 +49,66 @@ class Interface
   end
 
   def process(selection)
-      selection.gsub!(".", "") if selection.include?(".")
-      case selection
-        when "1"
-          header("Input Students")
-          @directory.input_students
-        when "2"
-          header("Show Students")
-          @directory.show_students
-        when "3"
-          header("Save Directory")
-          @directory.save_students 
-        when "4"
-          header("Load Students")
-          prompt_to_save if @directory.unsaved? 
-          @directory = Directory.new 
-        when "9"
-          header("Exit")
-          prompt_to_save if @directory.unsaved? 
-          puts "Exiting Directory..."
-          exit
-        else
-          puts "error: enter 1-9"
-      end
+    selection.gsub!(".", "") if selection.include?(".")
+    case selection
+      when "1"
+        header("Input Students")
+        @directory.input_students
+      when "2"
+        header("Show Students")
+        show_students
+      when "3"
+        header("Save Directory")
+        @directory.save_students 
+      when "4"
+        header("Load Students")
+        prompt_to_save if @directory.unsaved? 
+        @directory = Directory.new 
+      when "9"
+        header("Exit")
+        prompt_to_save if @directory.unsaved? 
+        puts "Exiting Directory..."
+        exit
+      else
+        puts "error: enter 1-9"
     end
+  end
 
-    def header(title)
-      puts ""
-      puts "-" * 80
-      puts ""
-      puts title.center(80)
-      puts ""
-      puts "-" * 80
-      puts ""
+  def header(title)
+    puts ""
+    puts "-" * 80
+    puts ""
+    puts title.center(80)
+    puts ""
+    puts "-" * 80
+    puts ""
+  end
+
+  def show_students
+    @directory.list_count
+    @directory.list_students 
+  end
+
+  def prompt_to_save
+    puts "You have unsaved changes." 
+    puts "Do you want to save your directory first?"
+    puts ""
+    loop do
+      print "enter yes -y / no -n / cancel -c: "
+      user_input = gets.chomp
+
+      if user_input == "yes" || user_input == "y" || user_input == "-y"
+        @directory.save_students
+        break
+      elsif user_input == "no" || user_input == "n" || user_input == "-n"
+        break 
+      elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
+        interactive_menu
+        break
+      else 
+        puts "Not an option. Try again."
+      end 
     end
-
-    def prompt_to_save
-      puts "You have unsaved changes." 
-      puts "Do you want to save your directory first?"
-      puts ""
-      loop do
-        print "enter yes -y / no -n / cancel -c: "
-        user_input = gets.chomp
-
-        if user_input == "yes" || user_input == "y" || user_input == "-y"
-          @directory.save_students
-          break
-        elsif user_input == "no" || user_input == "n" || user_input == "-n"
-          break 
-        elsif user_input == "cancel" || user_input == "c" || user_input == "-c"
-          interactive_menu
-          break
-        else 
-          puts "Not an option. Try again."
-        end 
-      end
     return
   end
 
@@ -144,15 +149,6 @@ class Directory
       add(name)
     end
     puts "Now we have #{student_count}"
-  end
-
-  def show_students
-    unless @students.empty?
-      print_status
-      print_students 
-    else
-      puts "There are currently no students in Villains Academy".center(80, "-")
-    end
   end
 
   def enter_filename
@@ -211,6 +207,22 @@ class Directory
     end
   end
 
+  def list_students
+    @students.each_with_index do |student, index|
+      puts "#{index + 1}. #{student[:name]} (#{student[:cohort]} cohort)"
+    end
+    puts ""
+  end
+
+  def list_count
+    if @students.count > 0  
+      puts "Showing #{@students.count} out of #{student_count}".center(80, "-")
+    else
+      puts "There are currently no students in Villains Academy".center(80, "-")
+    end
+    puts ""
+  end
+
   private
   def try_load_students
     @filename = ARGV.first || "students.csv"
@@ -231,21 +243,6 @@ class Directory
     end
   end
 
-  
-
-  def print_students
-    @students.each_with_index do |student, index|
-      puts "#{index + 1}. #{student[:name]} (#{student[:cohort]} cohort)"
-    end
-    puts ""
-  end
-
-  def print_status
-    puts "Showing #{@students.count} out of #{student_count}".center(80, "-")
-    puts ""
-    # puts "-" * 80
-    # puts ""
-  end
 
 end
 
