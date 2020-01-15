@@ -1,6 +1,8 @@
 require 'CSV'
 #create each student to add to the directory
 class Student
+  attr_accessor :name, :cohort
+
   def initialize(name, cohort)
     @name, @cohort = name, cohort
   end
@@ -12,16 +14,18 @@ class Student
 end
 
 #add class for visual environment? menu, print, layout
-class Session
-end
+# class Session
+# end
 #add separate classes for session and database?
 
 #load, view, edit, and save the directory
 class Directory
+  attr_accessor :students, :filename, :title 
+
   def initialize
     @students = []
-    @filename = nil
-    #@title = "New Student Directory"
+    @filename = "students.csv"
+    @title = "Student Directory"
     try_load_students
     header
     interactive_menu
