@@ -1,3 +1,5 @@
+@@filename = "students.csv"
+
 require 'CSV'
 #create each student to add to the directory
 class Student
@@ -15,12 +17,30 @@ end
 
 #add class for visual environment? menu, print, layout
 class Interface
-
-
   def initialize
-    @directory = Directory.new
+    load_file?
     header(@directory.title)
     interactive_menu
+  end
+
+  def load_file?
+      cli_argument = ARGV.first
+      if cli_argument.nil?
+        welcome
+      else
+        filename = cli_argument 
+        directory.check_file(filename)
+        puts "Loaded blank directory" if !File.exist?(filename)
+        return
+      end
+  end
+
+  def welcome
+    puts "What would you like to do?"
+    puts "1. Start a blank directory"
+    puts "2. Load an existing directory"
+    print "Enter option: "
+    input = gets.chomp
   end
 
   def interactive_menu
@@ -117,13 +137,10 @@ end
 
 #load, view, edit, and save the directory
 class Directory
-  attr_accessor :students, :filename, :academy 
+  attr_accessor :students, :academy 
 
   def initialize(academy = "Villains Academy")
     @students = []
-    @filename = "students.csv"
-    try_load_students
-    set_title
     # header
     # interactive_menu
   end  
@@ -171,22 +188,28 @@ class Directory
     puts "#{student_count} saved to #{@filename}"
   end
 
-  def load_file
-    puts "To load #{@filename} hit return."
-    print "Or "
-    enter_filename 
+  def load_this_file?
+    puts "To load #{@filename} hit return. Or "
+    enter_filename
+    check_file
+  end
 
-    if File.exist?(@filename)
-      CSV.foreach(@filename) do |row|
-        name, cohort = row
-        break if name.nil?
-        add(name)
-      end
-      puts "#{student_count} loaded from #{@filename}\n\n"
+  def check_file(filename = @filename)
+    if File.exist?(filename)
+      load_file
     else
-      puts "Couldn't locate file: #{@filename}"
+      puts "Couldn't locate file: #{filename}"
       return
     end
+  end
+
+  def load_file(filename = @filename)
+    CSV.foreach(@filename) do |row|
+      name, cohort = row
+      break if name.nil?
+      add(name)
+    end
+    puts "#{student_count} loaded from #{@filename}\n\n"      
   end
 
   def session_data
@@ -224,11 +247,22 @@ class Directory
   end
 
   private
-  def try_load_students
-    @filename = ARGV.first || "students.csv"
-    load_file
-    puts "Loaded blank directory" if !File.exist?(@filename)
-  end
+  # def try_load_file
+  #   cli_argument = ARGV.first
+  #   if cli_argument.nil?
+  #     puts "What would you like to do?"
+  #     puts "1. Start a blank directory"
+  #     puts "2. Load an existing directory"
+  #     print "Enter option: "
+  #     input = gets.chomp
+  #     if input = 
+  #   else
+  #     @filename = cli_argument 
+  #     check_file
+  #     puts "Loaded blank directory" if !File.exist?(@filename)
+  #   end
+  #   load_file
+  # end
 
   def add(name)
     student = Student.new(name, :november)
