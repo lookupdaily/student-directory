@@ -18,9 +18,50 @@ class Interface
 
 
   def initialize
-    @directory = Directory.new
+    try_load_students
+    @directory.set_title
     header(@directory.title)
     interactive_menu
+  end
+
+  def try_load_students
+    cli_argument = ARGV.first
+    puts "\nWelcome to the Student Directory app"
+    puts "-" * 37
+    @directory = Directory.new
+    if cli_argument.nil?
+      welcome
+    elsif File.exist?(cli_argument)
+      @@filename = cli_argument.to_s
+      @directory.load_file
+    else 
+      puts "Couldn't locate file: #{cli_argument}"
+      welcome
+    end
+  end
+  
+  def welcome
+    puts "What would you like to do?\n\n"
+    puts "1. Load blank directory"
+    puts "2. Load students from 'students.csv'"
+    puts "3. Load students from another file"
+    print "\nenter 1-3: "
+    loop do
+      user_input = STDIN.gets.chomp
+      if user_input == '1'
+        puts "Loading blank directory..."
+        break
+      elsif user_input == '2' 
+        @directory.load_file
+        break
+      elsif user_input == '3'
+        @directory.enter_filename
+        @directory.load_file
+        break
+      else 
+        puts "Sorry i don't understand. Please try again"
+      end
+    end
   end
 
   def interactive_menu
@@ -63,7 +104,8 @@ class Interface
       when "4"
         header("Load Students")
         prompt_to_save if @directory.unsaved? 
-        @directory = Directory.new 
+        @directory = Directory.new
+        @directory.load_file 
       when "9"
         header("Exit")
         prompt_to_save if @directory.unsaved? 
@@ -117,13 +159,12 @@ end
 
 #load, view, edit, and save the directory
 class Directory
-  attr_accessor :students, :filename, :academy 
+  attr_accessor :students, :filename, :title 
 
   def initialize(academy = "Villains Academy")
     @students = []
-    @filename = "students.csv"
-    try_load_students
-    set_title
+    @@filename = "students.csv"
+    @title = ""
     # header
     # interactive_menu
   end  
@@ -152,11 +193,11 @@ class Directory
   end
 
   def save_students
-    puts "To save students to '#{@filename}' hit return."
+    puts "To save students to '#{@@filename}' hit return."
     print "Or "
     enter_filename 
 
-    CSV.open(@filename, "w") do |csv|
+    CSV.open(@@filename, "w") do |csv|
       csv.truncate(0)
       @students.each do |student|
         csv << [student[:name], student[:cohort]]
@@ -166,19 +207,19 @@ class Directory
   end
 
   def load_file
-    puts "To load #{@filename} hit return."
+    puts "To load #{@@filename} hit return."
     print "Or "
     enter_filename 
 
-    if File.exist?(@filename)
-      CSV.foreach(@filename) do |row|
+    if File.exist?(@@filename)
+      CSV.foreach(@@filename) do |row|
         name, cohort = row
         break if name.nil?
         add(name)
       end
-      puts "#{student_count} loaded from #{@filename}\n\n"
+      puts "#{student_count} loaded from #{@@filename}\n\n"
     else
-      puts "Couldn't locate file: #{@filename}"
+      puts "Couldn't locate file: #{@@filename}"
       return
     end
   end
@@ -186,7 +227,7 @@ class Directory
   def enter_filename
     print "enter filename: "
     answer = STDIN.gets.chomp
-    @filename = answer unless answer.size < 1
+    @@filename = answer unless answer.size < 1
   end
 
   def session_data
@@ -198,9 +239,9 @@ class Directory
   end
 
   def unsaved?
-    if !File.exist?(@filename)
+    if !File.exist?(@@filename)
       true
-    elsif session_data != CSV.read(@filename) 
+    elsif session_data != CSV.read(@@filename) 
       true
     else
       false
@@ -224,44 +265,6 @@ class Directory
   end
 
   private
-  def try_load_students
-    cli_argument = ARGV.first
-    puts "\nWelcome to the Student Directory app"
-    puts "-" * 37
-    if cli_argument.nil?
-      welcome
-    elsif File.exist?(cli_argument)
-      @filename = cli_argument.to_s
-      load_file
-    else 
-      puts "Couldn't locate file: #{cli_argument}"
-      welcome
-    end
-  end
-
-  def welcome
-    puts "What would you like to do?\n\n"
-    puts "1. Load blank directory"
-    puts "2. Load students from 'students.csv'"
-    puts "3. Load students from another file"
-    print "\nenter 1-3: "
-    loop do
-      user_input = STDIN.gets.chomp
-      if user_input == '1'
-        puts "Loading blank directory..."
-        return
-      elsif user_input == '2' 
-        load_file
-        break
-      elsif user_input == '3'
-        enter_filename
-        load_file
-        break
-      else 
-        puts "Sorry i don't understand. Please try again"
-      end
-    end
-  end
 
   def add(name)
     student = Student.new(name, :november)
