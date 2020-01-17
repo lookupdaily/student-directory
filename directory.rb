@@ -18,7 +18,9 @@ end
 #add class for visual environment? menu, print, layout
 class Interface
   def initialize
+    @directory = directory.new
     load_file?
+    @directory.set_title
     header(@directory.title)
     interactive_menu
   end

@@ -22,7 +22,7 @@ def input_students
     puts "Hobbies (separate with ,):"
     hobbies = gets.chomp.strip.split(","||", ")
     #add the student hash to the array
-    students << {name: name, gender: gender, country: country, hobbies: hobbies, cohort: month}
+    students << {name: name, gender: gender, country: country, cohort: month}
     puts "Now we have #{students.count} students"
     # get another name from the user
     puts "Full name:"
@@ -31,10 +31,7 @@ def input_students
   #return the array of students
   students
 end
-
-#validate inputs
-def select_cohort(input)
-  months = [
+months = [
     ["january", "jan", 1],
     ["february", "feb", 2],
     ["march", "mar", 3],
@@ -48,7 +45,9 @@ def select_cohort(input)
     ["november", "nov", 11],
     ["december", "dec", 12]
   ]
-
+#validate inputs
+def select_cohort(input, months)
+  
   while true do
     if input == ""
       selected_month = ["undeclared"]
@@ -81,32 +80,32 @@ def list(students)
   #iterator method:
   students.each_with_index do |student, index|
     print "#{index + 1}."
-    print "#{student[:name]}".center(29)
+    print "#{student[:name]}".center(19)
     print "|"
     print "#{student[:gender]}".center(9)
     print "|"
     print "#{student[:country]}".center(9)
     print "|\n"
-    #print "#{student[:cohort].capitalize} Cohort".center(20) + "\n"
+    print "#{student[:cohort].capitalize} Cohort".center(20) + "\n"
   end
 
 end
 
-def list_by_cohort(students)
-  cohorts = []
+# def list_by_cohort(students)
+#   cohorts = []
 
-  students.each do |student|
-    cohorts << student[:cohort] unless cohorts.include?(student[:cohort])
-  end
+#   students.each do |student|
+#     cohorts << student[:cohort] unless cohorts.include?(student[:cohort])
+#   end
 
-  cohorts.each do |cohort|
-    puts "#{cohort.capitalize} Cohort:"
-    puts ""
-    list(students.select {|student| student[:cohort] == cohort})
-    puts "-" * 80
-  end
+#   cohorts.each do |cohort|
+#     puts "#{cohort.capitalize} Cohort:"
+#     puts ""
+#     list(students.select {|student| student[:cohort] == cohort})
+#     puts "-" * 80
+#   end
 
-end
+# end
 
   #loop method
   #i = 0
@@ -121,6 +120,20 @@ end
     #puts "#{i + 1}. #{students[i][:name]} (#{students[i][:cohort].capitalize} Cohort)"
   #  i += 1
   #end
+
+#create a method which creates a list of existing cohorts
+def list_cohorts(students)
+  cohorts = students.map {|student| student[:cohort] } 
+  cohorts.uniq
+end
+
+def print_by_cohort(students)
+  list_cohorts(students).each do |cohort|
+    puts cohort
+    p students_by_cohort = students.select {|student| student[:cohort] == cohort}
+    list(students_by_cohort)
+  end
+end
 
 def print_footer(students)
 
@@ -162,10 +175,10 @@ students = input_students
 #filter_by_length(students)
 if !students.empty?
   print_header
-  list(students)
+  print_by_cohort(students)
+  #list(students)
 #list_by_cohort(students)  
 end
 print_footer(students)
-
 #existing_cohorts(students)
 #filter(students)
