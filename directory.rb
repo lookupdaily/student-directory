@@ -3,12 +3,65 @@ require 'CSV'
 class Student
   attr_accessor :name, :cohort
 
-  def initialize(name, cohort)
+  def initialize
     @name, @cohort = name, cohort
+    create
+  end
+
+  def create
+    print "First name: "
+    @name = STDIN.gets.chomp
+    return if name.size < 1 || name == "#"
+    print "Surname: "
+    @surname = STDIN.gets.chomp
+    print "Cohort (month starting on site): "
+    @cohort = select_cohort(gets.chomp.downcase)
+    puts "Gender (M/F/N):"
+    @gender = STDIN.gets.chomp
+    puts "Country of birth:"
+    @country = STDIN.gets.chomp
+    puts "Hobbies (separate with ,):"
+    @hobbies = STDIN.gets.chomp.strip.split(","||", ")
   end
 
   def record
-    return {name: @name, cohort: @cohort.to_sym}
+    return {name: @name, gender: @gender, cohort: @cohort, country: @country, hobbies: @hobbies} unless @name.empty?
+  end
+
+  def select_cohort(input)
+    months = [
+      ["january", "jan", 1],
+      ["february", "feb", 2],
+      ["march", "mar", 3],
+      ["april", "apr", 4],
+      ["may", 5],
+      ["june", "jun", 6],
+      ["july", "jul", 7],
+      ["august", "aug", 8],
+      ["september", "sep", 9],
+      ["october", "oct", 10],
+      ["november", "nov", 11],
+      ["december", "dec", 12]
+    ]
+  
+    while true do
+      if input == ""
+        selected_month = ["undeclared"]
+      else
+        selected_month = months.select {|month| month.include?(input)}.flatten!
+      end
+  
+      if selected_month == nil
+        puts "You entered an invalid month. Please enter again"
+        input = gets.chomp.downcase
+      else
+        break
+      end
+  
+    end
+  
+    cohort = selected_month[0].to_sym
+  
   end
 
 end
@@ -154,7 +207,7 @@ class Interface
   end
 
 end
-#add separate classes for session and database?
+
 
 #load, view, edit, and save the directory
 class Directory
@@ -185,9 +238,10 @@ class Directory
     puts "To finish just return twice or hit #"
 
     loop do
-      name = STDIN.gets.chomp
-      break if name.size < 1 || name == "#"
-      add(name)
+      student = Student.new 
+      break if student.record.nil?
+      @students << student.record
+      #add(name)
     end
     puts "Now we have #{student_count}"
   end
@@ -250,7 +304,7 @@ class Directory
 
   def list_students
     @students.each_with_index do |student, index|
-      puts "#{index + 1}. #{student[:name]} (#{student[:cohort]} cohort)"
+      puts "#{index + 1}. #{student[:name]}, #{student[:surname]}, #{student[:cohort]} cohort, #{student[:gender]}, #{student[:country]},"
     end
     puts ""
   end
