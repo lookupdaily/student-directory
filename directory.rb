@@ -95,7 +95,7 @@ class Interface
     puts ""
     loop do
       print "enter yes -y / no -n / cancel -c: "
-      user_input = gets.chomp
+      user_input = STDIN.gets.chomp
 
       if user_input == "yes" || user_input == "y" || user_input == "-y"
         @directory.save_students
@@ -130,7 +130,7 @@ class Directory
   
   def set_title
     print "Enter academy title: "
-    @academy = gets.chomp
+    @academy = STDIN.gets.chomp
 
     @academy = "New Student Directory" if @academy.size < 1
   end
@@ -149,12 +149,6 @@ class Directory
       add(name)
     end
     puts "Now we have #{student_count}"
-  end
-
-  def enter_filename
-    print "enter new filename: "
-    answer = gets.chomp
-    @filename = answer unless answer.size < 1
   end
 
   def save_students
@@ -187,6 +181,12 @@ class Directory
       puts "Couldn't locate file: #{@filename}"
       return
     end
+  end
+
+  def enter_filename
+    print "enter filename: "
+    answer = STDIN.gets.chomp
+    @filename = answer unless answer.size < 1
   end
 
   def session_data
@@ -225,9 +225,42 @@ class Directory
 
   private
   def try_load_students
-    @filename = ARGV.first || "students.csv"
-    load_file
-    puts "Loaded blank directory" if !File.exist?(@filename)
+    cli_argument = ARGV.first
+    puts "\nWelcome to the Student Directory app"
+    puts "-" * 37
+    if cli_argument.nil?
+      welcome
+    elsif File.exist?(cli_argument)
+      @filename = cli_argument.to_s
+      load_file
+    else 
+      puts "Couldn't locate file: #{cli_argument}"
+      welcome
+    end
+  end
+
+  def welcome
+    puts "What would you like to do?\n\n"
+    puts "1. Load blank directory"
+    puts "2. Load students from 'students.csv'"
+    puts "3. Load students from another file"
+    print "\nenter 1-3: "
+    loop do
+      user_input = STDIN.gets.chomp
+      if user_input == '1'
+        puts "Loading blank directory..."
+        return
+      elsif user_input == '2' 
+        load_file
+        break
+      elsif user_input == '3'
+        enter_filename
+        load_file
+        break
+      else 
+        puts "Sorry i don't understand. Please try again"
+      end
+    end
   end
 
   def add(name)
@@ -245,6 +278,6 @@ class Directory
 
 
 end
-
+# puts File.read(__FILE__)
 session = Interface.new
 
