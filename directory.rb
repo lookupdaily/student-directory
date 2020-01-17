@@ -19,7 +19,6 @@ class Interface
 
   def initialize
     try_load_students
-    @directory.set_title
     header(@directory.title)
     interactive_menu
   end
@@ -35,13 +34,13 @@ class Interface
       @@filename = cli_argument.to_s
       @directory.load_file
     else 
-      puts "Couldn't locate file: #{cli_argument}"
+      puts "Sorry, couldn't locate file: #{cli_argument}."
       welcome
     end
   end
   
   def welcome
-    puts "What would you like to do?\n\n"
+    puts "\nWhat would you like to do?\n\n"
     puts "1. Load blank directory"
     puts "2. Load students from 'students.csv'"
     puts "3. Load students from another file"
@@ -59,7 +58,7 @@ class Interface
         @directory.load_file
         break
       else 
-        puts "Sorry i don't understand. Please try again"
+        print "Sorry i don't understand. Please enter 1-3: "
       end
     end
   end
@@ -164,7 +163,7 @@ class Directory
   def initialize(academy = "Villains Academy")
     @students = []
     @@filename = "students.csv"
-    @title = ""
+    @title = nil
     # header
     # interactive_menu
   end  
@@ -177,6 +176,7 @@ class Directory
   end
 
   def title
+    set_title if @academy.nil?
     @academy
   end
 
