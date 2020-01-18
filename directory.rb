@@ -1,11 +1,19 @@
 require 'CSV'
 #create each student to add to the directory
 class Student
-  attr_accessor :name, :cohort
+  attr_accessor :name, :surname, :gender, :cohort, :country, :hobbies
 
-  def initialize
-    @name, @cohort = name, cohort
-    create
+  def initialize(info = {})
+    if info.size < 1
+      create
+    else 
+      @name = info.fetch(:name)
+      @surname = info.fetch(:surname)
+      @gender = info.fetch(:gender)
+      @cohort = info.fetch(:cohort)
+      @country = info.fetch(:country)
+      @hobbies = info.fetch(:country)
+    end
   end
 
   def create
@@ -16,16 +24,21 @@ class Student
     @surname = STDIN.gets.chomp
     print "Cohort (month starting on site): "
     @cohort = select_cohort(gets.chomp.downcase)
-    puts "Gender (M/F/N):"
+    print "Gender (M/F/N): "
     @gender = STDIN.gets.chomp
-    puts "Country of birth:"
+    print "Country of birth: "
     @country = STDIN.gets.chomp
-    puts "Hobbies (separate with ,):"
-    @hobbies = STDIN.gets.chomp.strip.split(","||", ")
+    print "Favourite hobby: " 
+    @hobbies = STDIN.gets.chomp
+    puts "-" * 40
+  end
+
+  def load
+
   end
 
   def record
-    return {name: @name, gender: @gender, cohort: @cohort, country: @country, hobbies: @hobbies} unless @name.empty?
+    return {name: @name, surname: @surname, gender: @gender, cohort: @cohort, country: @country, hobbies: @hobbies} unless @name.empty?
   end
 
   def select_cohort(input)
@@ -254,22 +267,29 @@ class Directory
     CSV.open(@@filename, "w") do |csv|
       csv.truncate(0)
       @students.each do |student|
-        csv << [student[:name], student[:cohort]]
+        student_array = []
+        student.each_value {|value| student_array.push(value)}
+        csv << student_array
       end
     end
-    puts "#{student_count} saved to #{@filename}"
+    puts "#{student_count} saved to #{@@filename}"
   end
 
-  def load_file
+  def choose_file
     puts "To load #{@@filename} hit return."
     print "Or "
     enter_filename 
+  end
+
+  def load_file
+    choose_file
 
     if File.exist?(@@filename)
       CSV.foreach(@@filename) do |row|
-        name, cohort = row
+        name , surname , gender , cohort , country , hobbies = row
         break if name.nil?
-        add(name)
+        student = Student.new(name: name, surname: surname, gender: gender, cohort: cohort, country: country, hobbies: hobbies)
+        @students << student.record
       end
       puts "#{student_count} loaded from #{@@filename}\n\n"
     else
@@ -304,7 +324,7 @@ class Directory
 
   def list_students
     @students.each_with_index do |student, index|
-      puts "#{index + 1}. #{student[:name]}, #{student[:surname]}, #{student[:cohort]} cohort, #{student[:gender]}, #{student[:country]},"
+      puts "#{index + 1}. #{student[:name]} #{student[:surname]}, #{student[:cohort]} cohort, #{student[:gender]}, #{student[:country]},"
     end
     puts ""
   end
@@ -320,10 +340,10 @@ class Directory
 
   private
 
-  def add(name)
-    student = Student.new(name, :november)
-    @students << student.record
-  end
+  # def add()
+  #   student = Student.new(name, surname, gender, cohort, country, hobbies)
+  #   @students << student.record
+  # end
 
   def student_count
     if @students.count == 1
