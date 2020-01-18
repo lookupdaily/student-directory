@@ -17,7 +17,8 @@ class Student
   end
 
   def create
-    print "First name: "
+    puts "\n" + "-" * 40
+    print "\nFirst name: "
     @name = STDIN.gets.chomp
     return if name.size < 1 || name == "#"
     print "Surname: "
@@ -30,7 +31,6 @@ class Student
     @country = STDIN.gets.chomp
     print "Favourite hobby: " 
     @hobbies = STDIN.gets.chomp
-    puts "-" * 40
   end
 
   def load
@@ -108,19 +108,14 @@ class Interface
   def welcome
     puts "\nWhat would you like to do?\n\n"
     puts "1. Load blank directory"
-    puts "2. Load students from 'students.csv'"
-    puts "3. Load students from another file"
-    print "\nenter 1-3: "
+    puts "2. Load students from file"
+    print "\nenter 1 or 2: "
     loop do
       user_input = STDIN.gets.chomp
       if user_input == '1'
         puts "Loading blank directory..."
         break
       elsif user_input == '2' 
-        @directory.load_file
-        break
-      elsif user_input == '3'
-        @directory.enter_filename
         @directory.load_file
         break
       else 
@@ -136,43 +131,48 @@ class Interface
     end
   end
 
+  MENU = ["","Add Students","View Students","Filter Students","Find Student","Save Directory","Rename Directory","New Directory","Load Directory","Exit"]
+
   #menu methods
   def print_menu
     puts ""
     puts " MENU ".center(18, "-")
     puts ""
-    puts "1. Input students"
-    puts "2. View students"
-    puts "3. Save the list"
-    puts "4. Load a new directory" 
-    # puts "5. Search Directory"
-    # puts "6. View records"
-    # puts "7. Rename directory"
-    # puts "8. Clear directory"
-    puts "9. Exit" 
+    MENU.each_with_index do |item, index|
+      print "#{index}. " unless index == 0
+      puts item
+    end
     puts ""
     print "enter 1-9: "
   end
 
   def process(selection)
     selection.gsub!(".", "") if selection.include?(".")
-    case selection
-      when "1"
-        header("Input Students")
+    item = selection.to_i
+    header(MENU[item]) if item > 0 && item < 10
+    case item
+      when 1
         @directory.input_students
-      when "2"
-        header("Show Students")
+      when 2
         show_students
-      when "3"
-        header("Save Directory")
+      when 3
+        #filter_students
+      when 4
+        #find_students  
+      when 5
         @directory.save_students 
-      when "4"
-        header("Load Students")
+      when 6
+        @directory.set_title
+        puts "Academy title updated to: #{@directory.title}"
+        header(@directory.title)
+      when 7
+        prompt_to_save if @directory.unsaved? 
+        @directory = Directory.new  
+      when 8
         prompt_to_save if @directory.unsaved? 
         @directory = Directory.new
         @directory.load_file 
-      when "9"
-        header("Exit")
+      when 9
         prompt_to_save if @directory.unsaved? 
         puts "Exiting Directory..."
         exit
@@ -181,19 +181,21 @@ class Interface
     end
   end
 
-  def header(title)
+  def header(title = "New")
     puts ""
     puts "-" * 80
     puts ""
-    puts title.center(80)
+    puts "#{@student.title} Student Directory".center(80)
     puts ""
+    puts title.upcase.center(80) unless title.empty?
+    puts "" unless title.empty?
     puts "-" * 80
     puts ""
   end
 
   def show_students
-    @directory.list_count
     @directory.list_students 
+    @directory.list_count
   end
 
   def prompt_to_save
@@ -256,6 +258,7 @@ class Directory
       @students << student.record
       #add(name)
     end
+    puts "END INPUT"
     puts "Now we have #{student_count}"
   end
 
@@ -325,18 +328,18 @@ class Directory
     end
   end
 
-  def list_students
-    @students.each_with_index do |student, index|
+  def list_students(students = @students)
+    students.each_with_index do |student, index|
       puts "#{index + 1}. #{student[:name]} #{student[:surname]}, #{student[:cohort]} cohort, #{student[:gender]}, #{student[:country]},"
     end
     puts ""
   end
 
-  def list_count
-    if @students.count > 0  
-      puts "Showing #{@students.count} out of #{student_count}".center(80, "-")
+  def list_count(students = @students)
+    if students.count > 0  
+      puts "Showing #{students.count} out of #{student_count}".center(80, "-")
     else
-      puts "There are currently no students in Villains Academy".center(80, "-")
+      puts "There are currently no students to show.".center(80, "-")
     end
     puts ""
   end
