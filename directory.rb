@@ -12,7 +12,7 @@ class Student
       @gender = info.fetch(:gender)
       @cohort = info.fetch(:cohort)
       @country = info.fetch(:country)
-      @hobbies = info.fetch(:country)
+      @hobbies = info.fetch(:hobbies)
     end
   end
 
@@ -266,14 +266,11 @@ class Directory
 
     CSV.open(@@filename, "w") do |csv|
       csv.truncate(0)
-      @students.each do |student|
-        student_array = []
-        student.each_value {|value| student_array.push(value)}
-        csv << student_array
-      end
+      compile_to(csv)
     end
     puts "#{student_count} saved to #{@@filename}"
   end
+
 
   def choose_file
     puts "To load #{@@filename} hit return."
@@ -306,10 +303,16 @@ class Directory
 
   def session_data
     student_data = []
-    @students.each do |student|
-      student_data << [student[:name], student[:cohort].to_s]
-    end
+    compile_to(student_data)
     student_data
+  end
+
+  def compile_to(destination)
+    @students.each do |student|
+      student_array = []
+      student.each_value {|value| student_array.push(value.to_s)}
+      destination << student_array
+    end
   end
 
   def unsaved?
