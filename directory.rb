@@ -1,3 +1,5 @@
+require 'CSV'
+
 module Info
   COHORTS = [
     ["january", "jan", 1],
@@ -15,82 +17,22 @@ module Info
   ]
 
   STUDENT_INFO = ["Forename", "Surname", "Gender", "Cohort", "Nationality", "Hobbies"]
+
+  def list_fields
+    puts ""
+    STUDENT_INFO.each_with_index { |info, index| puts "#{index + 1}. #{info}"}
+    puts ""
+  end
+
+  MENU = ["","Add Students","View Students","Filter Students","View Cohorts","Load students into Directory","Save Directory","Rename Directory","New Directory","Exit"]
 end
 
-require 'CSV'
-#create each student to add to the directory
-class Student
-  include Info
-  attr_accessor :name, :surname, :gender, :cohort, :country, :hobbies
-
-  def initialize(info = {})
-    if info.size < 1
-      create
-    else 
-      @name = info.fetch(:name)
-      @surname = info.fetch(:surname)
-      @gender = info.fetch(:gender)
-      @cohort = info.fetch(:cohort)
-      @country = info.fetch(:country)
-      @hobbies = info.fetch(:hobbies)
-    end
-  end
-
-  def create
-    puts "\n" + "-" * 40
-    print "\nFirst name: "
-    @name = STDIN.gets.chomp
-    return if name.size < 1 || name == "#"
-    print "Surname: "
-    @surname = STDIN.gets.chomp
-    print "Cohort (month starting on site): "
-    @cohort = select_cohort(gets.chomp.downcase)
-    print "Gender (M/F/N): "
-    @gender = STDIN.gets.chomp
-    print "Country of birth: "
-    @country = STDIN.gets.chomp
-    print "Favourite hobby: " 
-    @hobbies = STDIN.gets.chomp
-  end
-
-  def load
-
-  end
-
-  def record
-    return {name: @name.downcase, surname: @surname.downcase, gender: @gender.downcase, cohort: @cohort.downcase, country: @country.downcase, hobbies: @hobbies.downcase} unless @name.empty?
-  end
-
-  def select_cohort(input)
-    while true do
-      if input == ""
-        selected_month = ["undeclared"]
-      else
-        selected_month = COHORTS.select {|month| month.include?(input)}.flatten!
-      end
-  
-      if selected_month == nil
-        puts "You entered an invalid month. Please enter again"
-        input = gets.chomp.downcase
-      else
-        break
-      end
-  
-    end
-  
-    cohort = selected_month[0].to_sym
-  
-  end
-
-end
-
-#add class for visual environment? menu, print, layout
 class Interface
   include Info
 
   def initialize
     try_load_students
-    header(@directory.title)
+    print_header("Welcome")
     interactive_menu
   end
 
@@ -136,9 +78,6 @@ class Interface
     end
   end
 
-  MENU = ["","Add Students","View Students","Filter Students","View Cohorts","Save Directory","Rename Directory","New Directory","Load Directory","Exit"]
-
-  #menu methods
   def print_menu
     puts ""
     puts " MENU ".center(18, "-")
@@ -154,29 +93,28 @@ class Interface
   def process(selection)
     selection.gsub!(".", "") if selection.include?(".")
     item = selection.to_i
-    header(MENU[item]) if item > 0 && item < 10
+    print_header(MENU[item]) if item > 0 && item < 10
     case item
       when 1
         @directory.input_students
       when 2
-        show_students
+        @directory.show_students
       when 3
-        filter_menu
+        filter_options
       when 4
-        sort_by_cohort  
+        @directory.sort_by_cohort  
       when 5
-        @directory.save_students 
+        @directory.load_file 
       when 6
-        @directory.set_title
-        puts "Academy title updated to: #{@directory.title}"
-        header(@directory.title)
+        @directory.save_students 
       when 7
-        prompt_to_save if @directory.unsaved? 
-        @directory = Directory.new  
+        @directory.set_title
+        puts "Academy title updated to: #{@directory.academy}"
+        print_header(@directory.academy)
       when 8
         prompt_to_save if @directory.unsaved? 
-        @directory = Directory.new
-        @directory.load_file 
+        @directory = Directory.new  
+        welcome
       when 9
         prompt_to_save if @directory.unsaved? 
         puts "Exiting Directory..."
@@ -186,11 +124,11 @@ class Interface
     end
   end
 
-  def header(title = "New")
+  def print_header(title = "New")
     puts ""
     puts "-" * 80
     puts ""
-    puts "#{@directory.title} Student Directory".center(80)
+    puts "#{@directory.academy} Student Directory".center(80)
     puts ""
     puts title.upcase.center(80) unless title.empty?
     puts "" unless title.empty?
@@ -198,20 +136,7 @@ class Interface
     puts ""
   end
 
-  def list_fields
-    puts ""
-    STUDENT_INFO.each_with_index { |info, index| puts "#{index + 1}. #{info}"}
-    puts ""
-  end
-
-  def sort_by_cohort
-    COHORTS.each do |cohort|
-      @directory.filter_by_cohort(cohort[0])
-    end
-    @directory.list_count
-  end
-
-  def filter_menu
+  def filter_options
     puts "Which information would you like to filter students by?"
     list_fields
     loop do
@@ -243,11 +168,6 @@ class Interface
     # filter_students(field)
   end
 
-  def show_students
-    @directory.list_students 
-    @directory.list_count
-  end
-
   def prompt_to_save
     puts "You have unsaved changes." 
     puts "Do you want to save your directory first?"
@@ -273,15 +193,14 @@ class Interface
 
 end
 
-
-#load, view, edit, and save the directory
 class Directory
-  attr_accessor :students, :filename, :title 
+  include Info
+  attr_accessor :students, :filename, :academy 
 
-  def initialize(academy = "Villains Academy")
+  def initialize
     @students = []
     @@filename = "students.csv"
-    @title = nil
+    @academy = "New"
     # header
     # interactive_menu
   end  
@@ -290,11 +209,10 @@ class Directory
     print "Enter academy title: "
     @academy = STDIN.gets.chomp
 
-    @academy = "New Student Directory" if @academy.size < 1
+    @academy = "New" if @academy.size < 1
   end
 
   def title
-    set_title if @academy.nil?
     @academy
   end
 
@@ -306,10 +224,15 @@ class Directory
       student = Student.new 
       break if student.record.nil?
       @students << student.record
-      #add(name)
     end
     puts "END INPUT"
     puts "Now we have #{student_count}"
+  end
+
+  def show_students
+    list_headers
+    list_students 
+    list_count
   end
 
   def filter_by(field)
@@ -324,7 +247,7 @@ class Directory
   end
 
   def filter_by_cohort(cohort)
-    filtered = @students.select {|student| student[:cohort] == cohort}
+    filtered = @students.select {|student| student[:cohort] == cohort.to_sym}
     puts "#{cohort.capitalize} Cohort:"
     puts ""
     if !filtered.empty?
@@ -335,14 +258,22 @@ class Directory
     puts "-" * 80
   end
 
+  def sort_by_cohort
+    list_headers
+    COHORTS.each do |cohort|
+      filter_by_cohort(cohort[0])
+    end
+    list_count
+  end
+
   def show_results(search, search_results)
     puts "\nSearch results for '#{search}':"
     puts "-" * 80
+    list_headers
     list_students(search_results)
     list_count(search_results)
   end
   
-    
   def save_students
     puts "To save students to '#{@@filename}' hit return."
     print "Or "
@@ -355,34 +286,34 @@ class Directory
     puts "#{student_count} saved to #{@@filename}"
   end
 
-
   def choose_file
     puts "To load #{@@filename} hit return."
     print "Or "
-    enter_filename 
-  end
-
-  def load_file
-    choose_file
-
-    if File.exist?(@@filename)
-      CSV.foreach(@@filename) do |row|
-        name , surname , gender , cohort , country , hobbies = row
-        break if name.nil?
-        student = Student.new(name: name, surname: surname, gender: gender, cohort: cohort, country: country, hobbies: hobbies)
-        @students << student.record
-      end
-      puts "#{student_count} loaded from #{@@filename}\n\n"
-    else
-      puts "Couldn't locate file: #{@@filename}"
-      return
-    end
+    enter_filename
   end
 
   def enter_filename
     print "enter filename: "
     answer = STDIN.gets.chomp
     @@filename = answer unless answer.size < 1
+  end
+
+  def load_file
+    choose_file
+    row_count = 0
+    if File.exist?(@@filename)
+      CSV.foreach(@@filename) do |row|
+        name , surname , gender , cohort , country , hobbies = row
+        break if name.nil?
+        student = Student.new(name: name, surname: surname, gender: gender, cohort: cohort, country: country, hobbies: hobbies)
+        @students << student.record
+        row_count += 1
+      end
+      puts "#{row_count} students loaded from #{@@filename}\n\n"
+    else
+      puts "Couldn't locate file: #{@@filename}"
+      return
+    end
   end
 
   def compile_to(destination)
@@ -403,9 +334,29 @@ class Directory
     end
   end
 
+  def list_headers
+    print "".ljust(5)
+    print "Forename".ljust(15)
+    print "Surname".ljust(15)
+    print "Gender".ljust(10)
+    print "Country".ljust(10)
+    print "Hobbies".ljust(15)
+    print "Cohort".ljust(10)
+    puts "\n"
+    puts "-" * 80
+    puts ""
+  end
+
   def list_students(students = @students)
     students.each_with_index do |student, index|
-      puts "#{index + 1}. #{student[:name].capitalize} #{student[:surname].capitalize}, #{student[:cohort].capitalize} Cohort, #{student[:gender].capitalize}, #{student[:country].upcase}"
+      print "#{index + 1}. ".ljust(5)
+      print "#{student[:name]}".capitalize.ljust(15)
+      print "#{student[:surname]}".capitalize.ljust(15)
+      print "#{student[:gender]}".capitalize.ljust(10)
+      print "#{student[:country]}".upcase.ljust(10)
+      print "#{student[:hobbies]}".capitalize.ljust(15)
+      print "#{student[:cohort]}".capitalize.ljust(10)
+      puts "\n"
     end
   end
 
@@ -420,11 +371,6 @@ class Directory
   end
 
   private
-
-  # def add()
-  #   student = Student.new(name, surname, gender, cohort, country, hobbies)
-  #   @students << student.record
-  # end
 
   def student_count
     if @students.count == 1
@@ -441,5 +387,66 @@ class Directory
   end
 
 end
+
+class Student
+  include Info
+  attr_accessor :name, :surname, :gender, :cohort, :country, :hobbies
+
+  def initialize(info = {})
+    if info.size < 1
+      create
+    else 
+      @name = info.fetch(:name)
+      @surname = info.fetch(:surname)
+      @gender = info.fetch(:gender)
+      @cohort = info.fetch(:cohort)
+      @country = info.fetch(:country)
+      @hobbies = info.fetch(:hobbies)
+    end
+  end
+
+  def create
+    puts "\n" + "-" * 40
+    print "\nFirst name: "
+    @name = STDIN.gets.chomp
+    return if name.size < 1 || name == "#"
+    print "Surname: "
+    @surname = STDIN.gets.chomp
+    print "Cohort (month starting on site): "
+    @cohort = select_cohort(gets.chomp.downcase)
+    print "Gender (M/F/N): "
+    @gender = STDIN.gets.chomp
+    print "Country of birth: "
+    @country = STDIN.gets.chomp
+    print "Favourite hobby: " 
+    @hobbies = STDIN.gets.chomp
+  end
+
+  def record
+    return {name: @name.downcase, surname: @surname.downcase, gender: @gender.downcase, cohort: @cohort.to_sym, country: @country.downcase, hobbies: @hobbies.downcase} unless @name.empty?
+  end
+
+  def select_cohort(input)
+    while true do
+      if input == ""
+        selected_month = ["undeclared"]
+      else
+        selected_month = COHORTS.select {|month| month.include?(input)}.flatten!
+      end
+  
+      if selected_month == nil
+        puts "You entered an invalid month. Please enter again"
+        input = gets.chomp.downcase
+      else
+        break
+      end
+  
+    end
+    selected_month[0]
+  
+  end
+
+end
+
 session = Interface.new
 
