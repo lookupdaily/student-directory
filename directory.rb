@@ -1,6 +1,26 @@
+module Info
+  COHORTS = [
+    ["january", "jan", 1],
+    ["february", "feb", 2],
+    ["march", "mar", 3],
+    ["april", "apr", 4],
+    ["may", 5],
+    ["june", "jun", 6],
+    ["july", "jul", 7],
+    ["august", "aug", 8],
+    ["september", "sep", 9],
+    ["october", "oct", 10],
+    ["november", "nov", 11],
+    ["december", "dec", 12]
+  ]
+
+  STUDENT_INFO = ["Forename", "Surname", "Gender", "Cohort", "Nationality", "Hobbies"]
+end
+
 require 'CSV'
 #create each student to add to the directory
 class Student
+  include Info
   attr_accessor :name, :surname, :gender, :cohort, :country, :hobbies
 
   def initialize(info = {})
@@ -24,7 +44,7 @@ class Student
     print "Surname: "
     @surname = STDIN.gets.chomp
     print "Cohort (month starting on site): "
-    @cohort = select_cohort(gets.chomp)
+    @cohort = select_cohort(gets.chomp.downcase)
     print "Gender (M/F/N): "
     @gender = STDIN.gets.chomp
     print "Country of birth: "
@@ -42,26 +62,11 @@ class Student
   end
 
   def select_cohort(input)
-    months = [
-      ["january", "jan", 1],
-      ["february", "feb", 2],
-      ["march", "mar", 3],
-      ["april", "apr", 4],
-      ["may", 5],
-      ["june", "jun", 6],
-      ["july", "jul", 7],
-      ["august", "aug", 8],
-      ["september", "sep", 9],
-      ["october", "oct", 10],
-      ["november", "nov", 11],
-      ["december", "dec", 12]
-    ]
-  
     while true do
       if input == ""
         selected_month = ["undeclared"]
       else
-        selected_month = months.select {|month| month.include?(input)}.flatten!
+        selected_month = COHORTS.select {|month| month.include?(input)}.flatten!
       end
   
       if selected_month == nil
@@ -81,7 +86,7 @@ end
 
 #add class for visual environment? menu, print, layout
 class Interface
-
+  include Info
 
   def initialize
     try_load_students
@@ -119,7 +124,7 @@ class Interface
         @directory.load_file
         break
       else 
-        print "Sorry i don't understand. Please enter 1-3: "
+        print "Sorry i don't understand. Please enter 1 or 2: "
       end
     end
   end
@@ -131,7 +136,7 @@ class Interface
     end
   end
 
-  MENU = ["","Add Students","View Students","Filter Students","Find Student","Save Directory","Rename Directory","New Directory","Load Directory","Exit"]
+  MENU = ["","Add Students","View Students","Filter Students","View Cohorts","Save Directory","Rename Directory","New Directory","Load Directory","Exit"]
 
   #menu methods
   def print_menu
@@ -156,9 +161,9 @@ class Interface
       when 2
         show_students
       when 3
-        @directory.filter_menu
+        filter_menu
       when 4
-        #find_students  
+        sort_by_cohort  
       when 5
         @directory.save_students 
       when 6
@@ -191,6 +196,51 @@ class Interface
     puts "" unless title.empty?
     puts "-" * 80
     puts ""
+  end
+
+  def list_fields
+    puts ""
+    STUDENT_INFO.each_with_index { |info, index| puts "#{index + 1}. #{info}"}
+    puts ""
+  end
+
+  def sort_by_cohort
+    COHORTS.each do |cohort|
+      @directory.filter_by_cohort(cohort[0])
+    end
+    @directory.list_count
+  end
+
+  def filter_menu
+    puts "Which information would you like to filter students by?"
+    list_fields
+    loop do
+      print "enter 1-6: "
+      input = STDIN.gets.chomp
+      case input
+      when "1"
+        @directory.filter_by(:name)
+        break
+      when "2"
+        @directory.filter_by(:surname)
+        break
+      when "3"
+        @directory.filter_by(:gender)
+        break
+      when "4"
+        @directory.filter_by(:cohort)
+        break
+      when "5"
+        @directory.filter_by(:country)
+        break
+      when "6"
+        @directory.filter_by(:hobbies)
+        break
+      else 
+        print "Sorry I don't understand. Please "
+      end 
+    end
+    # filter_students(field)
   end
 
   def show_students
@@ -262,49 +312,8 @@ class Directory
     puts "Now we have #{student_count}"
   end
 
-  def list_fields
-    puts "\n1. First Name"
-    puts "2. Last Name"
-    puts "3. Gender"
-    puts "4. Cohort"
-    puts "5. Country of birth"
-    puts "6. Hobbies\n\n"
-  end
-
-  def filter_menu
-    puts "Which information would you like to filter students by?"
-    list_fields
-    loop do
-      print "enter 1-6: "
-      input = STDIN.gets.chomp
-      case input
-      when "1"
-        filter_by(:name)
-        break
-      when "2"
-        filter_by(:surname)
-        break
-      when "3"
-        filter_by(:gender)
-        break
-      when "4"
-        filter_by(:cohort)
-        break
-      when "5"
-        filter_by(:country)
-        break
-      when "6"
-        filter_by(:hobbies)
-        break
-      else 
-        print "Sorry I don't understand. Please "
-      end 
-    end
-    # filter_students(field)
-  end
-
   def filter_by(field)
-    puts "Enter search term: "
+    puts "\nEnter search term: "
     search = STDIN.gets.chomp.downcase
     if search.size == 1
       filtered = @students.select {|student| student[field].start_with?(search)}
@@ -314,9 +323,20 @@ class Directory
     show_results(search, filtered)
   end
 
+  def filter_by_cohort(cohort)
+    filtered = @students.select {|student| student[:cohort] == cohort}
+    puts "#{cohort.capitalize} Cohort:"
+    puts ""
+    if !filtered.empty?
+      list_students(filtered) 
+    else
+      puts "No students enrolled in cohort yet."
+    end
+    puts "-" * 80
+  end
+
   def show_results(search, search_results)
-    puts "Search results:"
-    puts "Showing students starting with '#{search}'"
+    puts "\nSearch results for '#{search}':"
     puts "-" * 80
     list_students(search_results)
     list_count(search_results)
@@ -365,12 +385,6 @@ class Directory
     @@filename = answer unless answer.size < 1
   end
 
-  def session_data
-    student_data = []
-    compile_to(student_data)
-    student_data
-  end
-
   def compile_to(destination)
     @students.each do |student|
       student_array = []
@@ -391,12 +405,12 @@ class Directory
 
   def list_students(students = @students)
     students.each_with_index do |student, index|
-      puts "#{index + 1}. #{student[:name].capitalize} #{student[:surname].capitalize}, #{student[:cohort].capitalize} cohort, #{student[:gender].capitalize}, #{student[:country].capitalize},"
+      puts "#{index + 1}. #{student[:name].capitalize} #{student[:surname].capitalize}, #{student[:cohort].capitalize} Cohort, #{student[:gender].capitalize}, #{student[:country].upcase}"
     end
-    puts ""
   end
 
   def list_count(students = @students)
+    puts ""
     if students.count > 0  
       puts "Showing #{students.count} out of #{student_count}".center(80, "-")
     else
@@ -420,8 +434,12 @@ class Directory
     end
   end
 
+  def session_data
+    student_data = []
+    compile_to(student_data)
+    student_data
+  end
 
 end
-# puts File.read(__FILE__)
 session = Interface.new
 
