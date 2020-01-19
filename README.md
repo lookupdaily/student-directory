@@ -26,3 +26,5 @@ The directory can only take csv files, and data must be saved in the following f
 
 
 If no file is given, a new file is created when selecting 'save' from within the app. You can also load data files at any point from within the app. 
+
+A populated file has been provided within this repo as an example. You can load it by typing `ruby directory.rb students.csv` in the command line, or the file is given as an option when selecting 'load' within the app.
