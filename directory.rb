@@ -156,7 +156,7 @@ class Interface
       when 2
         show_students
       when 3
-        #filter_students
+        @directory.filter_menu
       when 4
         #find_students  
       when 5
@@ -185,7 +185,7 @@ class Interface
     puts ""
     puts "-" * 80
     puts ""
-    puts "#{@student.title} Student Directory".center(80)
+    puts "#{@directory.title} Student Directory".center(80)
     puts ""
     puts title.upcase.center(80) unless title.empty?
     puts "" unless title.empty?
@@ -262,6 +262,67 @@ class Directory
     puts "Now we have #{student_count}"
   end
 
+  def list_fields
+    puts "\n1. First Name"
+    puts "2. Last Name"
+    puts "3. Gender"
+    puts "4. Cohort"
+    puts "5. Country of birth"
+    puts "6. Hobbies\n\n"
+  end
+
+  def filter_menu
+    puts "Which information would you like to filter students by?"
+    list_fields
+    loop do
+      print "enter 1-6: "
+      input = STDIN.gets.chomp
+      case input
+      when "1"
+        filter_by(:name)
+        break
+      when "2"
+        filter_by(:surname)
+        break
+      when "3"
+        filter_by(:gender)
+        break
+      when "4"
+        filter_by(:cohort)
+        break
+      when "5"
+        filter_by(:country)
+        break
+      when "6"
+        filter_by(:hobbies)
+        break
+      else 
+        print "Sorry I don't understand. Please "
+      end 
+    end
+    # filter_students(field)
+  end
+
+  def filter_by(field)
+    puts "Enter search term: "
+    search = STDIN.gets.chomp
+    if search.size == 1
+      filtered = @students.select {|student| student[field].start_with?(search)}
+    else 
+      filtered = @students.select {|student| student[field].include?(search)}
+    end
+    show_results(search, filtered)
+  end
+
+  def show_results(search, search_results)
+    puts "Search results:"
+    puts "Showing students starting with '#{search}'"
+    puts "-" * 80
+    list_students(search_results)
+    list_count(search_results)
+  end
+  
+    
   def save_students
     puts "To save students to '#{@@filename}' hit return."
     print "Or "
