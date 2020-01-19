@@ -24,7 +24,7 @@ class Student
     print "Surname: "
     @surname = STDIN.gets.chomp
     print "Cohort (month starting on site): "
-    @cohort = select_cohort(gets.chomp.downcase)
+    @cohort = select_cohort(gets.chomp)
     print "Gender (M/F/N): "
     @gender = STDIN.gets.chomp
     print "Country of birth: "
@@ -38,7 +38,7 @@ class Student
   end
 
   def record
-    return {name: @name, surname: @surname, gender: @gender, cohort: @cohort, country: @country, hobbies: @hobbies} unless @name.empty?
+    return {name: @name.downcase, surname: @surname.downcase, gender: @gender.downcase, cohort: @cohort.downcase, country: @country.downcase, hobbies: @hobbies.downcase} unless @name.empty?
   end
 
   def select_cohort(input)
@@ -305,7 +305,7 @@ class Directory
 
   def filter_by(field)
     puts "Enter search term: "
-    search = STDIN.gets.chomp
+    search = STDIN.gets.chomp.downcase
     if search.size == 1
       filtered = @students.select {|student| student[field].start_with?(search)}
     else 
@@ -391,7 +391,7 @@ class Directory
 
   def list_students(students = @students)
     students.each_with_index do |student, index|
-      puts "#{index + 1}. #{student[:name]} #{student[:surname]}, #{student[:cohort]} cohort, #{student[:gender]}, #{student[:country]},"
+      puts "#{index + 1}. #{student[:name].capitalize} #{student[:surname].capitalize}, #{student[:cohort].capitalize} cohort, #{student[:gender].capitalize}, #{student[:country].capitalize},"
     end
     puts ""
   end
