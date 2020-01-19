@@ -1,6 +1,6 @@
 # student-directory #
 
-The student directory script allows you to create and manage the list of students enrolled at Villains Academy.
+The student directory script allows you to create and manage the list of students enrolled at your academy.
 
 ## How to use ##
 
